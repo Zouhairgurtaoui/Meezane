@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
 using System.Diagnostics;
+using System.Windows.Forms;
 
 namespace scale.models
 {
@@ -56,14 +57,40 @@ namespace scale.models
             DataTable dt = new DataTable();
             try
             {
-                string query = "SELECT * FROM Pesee";
+                string query = "SELECT * FROM Pesee ORDER BY p_id DESC";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 SqlDataAdapter adapter = new SqlDataAdapter(cmd);
                 conn.Open();
                 adapter.Fill(dt);
 
             }
-            catch (Exception ex) { }
+            catch (Exception ex) {
+                Console.Write(ex.Message);
+            }
+            finally
+            {
+                conn.Close();
+            }
+            return dt;
+        }
+        public DataTable Select(string p_id)
+        {
+            SqlConnection conn = new SqlConnection(myConnstring);
+            DataTable dt = new DataTable();
+            try
+            {
+                string query = "SELECT * FROM Pesee where p_id =@p_id";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@p_id", p_id);
+                SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                conn.Open();
+                adapter.Fill(dt);
+
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex.Message);
+            }
             finally
             {
                 conn.Close();
@@ -83,7 +110,9 @@ namespace scale.models
                 adapter.Fill(dt);
 
             }
-            catch (Exception ex) { }
+            catch (Exception ex) {
+                MessageBox.Show(ex.Message);
+            }
             finally
             {
                 conn.Close();
@@ -96,7 +125,7 @@ namespace scale.models
             SqlConnection conn = new SqlConnection(myConnstring);
             try
             {
-               string query = "INSERT INTO Pesee(p_id,type_pesee,fr_id,pr_id,matricule,acc_id,prov_id,dest_id,brut,ddebut,hdebut,is_finished) VALUES(@p_id,@type_pesee,@fr_id,@pr_id,@matricule,@acc_id,@prov_id,@dest_id,@brut,@ddebut,@hdebut,@is_finished)";
+               string query = "INSERT INTO Pesee(p_id,type_pesee,fr_id,pr_id,matricule,acc_id,prov_id,dest_id,brut,ddebut,hdebut,is_finished,tare,dechets,dfin,hfin,net,nbr_caisse,caisses_normales,plateaux,poid_caisse,nbr_palettes,poid_glace,ecart,non_usinable) VALUES(@p_id,@type_pesee,@fr_id,@pr_id,@matricule,@acc_id,@prov_id,@dest_id,@brut,@ddebut,@hdebut,@is_finished,@tare,@dechets,@dfin,@hfin,@net,@nbr_caisse,@caisses_normales,@plateaux,@poid_caisse,@nbr_palettes,@poid_glace,@ecart,@non_usinable)";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@p_id",Id);
                 cmd.Parameters.AddWithValue("@type_pesee", Type);
@@ -109,15 +138,105 @@ namespace scale.models
                 cmd.Parameters.AddWithValue("@brut", Brut);
                 cmd.Parameters.AddWithValue("@ddebut", DDebut);
                 cmd.Parameters.AddWithValue("@hdebut", HDebut);
-                cmd.Parameters.AddWithValue("@is_finished", false);
+                cmd.Parameters.AddWithValue("@tare", Tare);
+                cmd.Parameters.AddWithValue("@is_finished", IsFinished);
+                cmd.Parameters.AddWithValue("@dechets", Dechets);
+                cmd.Parameters.AddWithValue("@dfin", (object)DFin ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@hfin", (object)HFin ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@net", Net);
+                cmd.Parameters.AddWithValue("@nbr_caisse", NbrCaisse);
+                cmd.Parameters.AddWithValue("@caisses_normales", CaisseNormale);
+                cmd.Parameters.AddWithValue("@plateaux", Plateaux);
+                cmd.Parameters.AddWithValue("@poid_caisse", PoidCaisse);
+                cmd.Parameters.AddWithValue("@nbr_palettes", NbrPalette);
+                cmd.Parameters.AddWithValue("@poid_glace", PoidGlace);
+                cmd.Parameters.AddWithValue("@ecart", Ecart);
+                cmd.Parameters.AddWithValue("@non_usinable", NonUsinable);
                 conn.Open();
                 int row = cmd.ExecuteNonQuery();
                 if (row > 0) isSuccess = true;
             }
-            catch(Exception ex) { }
+            catch(Exception ex) {
+                MessageBox.Show(ex.Message);
+            }
             finally
             {
                 conn.Close();
+            }
+            return isSuccess;
+        }
+
+        public bool Update(string type)
+        {
+            bool isSuccess = false;
+            SqlConnection conn = new SqlConnection(myConnstring);
+            if (type.Equals("brut"))
+            {
+
+                try
+                {
+                    string query = "UPDATE Pesee SET tare=@tare,is_finished=@is_finished,dechets=@dechets,dfin=@dfin,hfin=@hfin,net=@net,nbr_caisse=@nbr_caisse,caisses_normales=@caisses_normales,plateaux=@plateaux,poid_caisse=@poid_caisse,nbr_palettes=@nbr_palettes,poid_glace=@poid_glace,ecart=@ecart,non_usinable=@non_usinable WHERE p_id=@p_id";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@p_id", Id);
+                    cmd.Parameters.AddWithValue("@tare", Tare);
+                    cmd.Parameters.AddWithValue("@is_finished", IsFinished);
+                    cmd.Parameters.AddWithValue("@dechets", Dechets);
+                    cmd.Parameters.AddWithValue("@dfin", DFin);
+                    cmd.Parameters.AddWithValue("@hfin", HFin);
+                    cmd.Parameters.AddWithValue("@net", Net);
+                    cmd.Parameters.AddWithValue("@nbr_caisse", NbrCaisse);
+                    cmd.Parameters.AddWithValue("@caisses_normales", CaisseNormale);
+                    cmd.Parameters.AddWithValue("@plateaux", Plateaux);
+                    cmd.Parameters.AddWithValue("@poid_caisse", PoidCaisse);
+                    cmd.Parameters.AddWithValue("@nbr_palettes", NbrPalette);
+                    cmd.Parameters.AddWithValue("@poid_glace", PoidGlace);
+                    cmd.Parameters.AddWithValue("@ecart", Ecart);
+                    cmd.Parameters.AddWithValue("@non_usinable", NonUsinable);
+                    conn.Open();
+                    int row = cmd.ExecuteNonQuery();
+                    if (row > 0) isSuccess = true;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+                finally
+                {
+                    conn.Close();
+                }
+            }else if (type.Equals("tare"))
+            {
+                try
+                {
+                    string query = "UPDATE Pesee SET brut=@brut,is_finished=@is_finished,dechets=@dechets,dfin=@dfin,hfin=@hfin,net=@net,nbr_caisse=@nbr_caisse,caisses_normales=@caisses_normales,plateaux=@plateaux,poid_caisse=@poid_caisse,nbr_palettes=@nbr_palettes,poid_glace=@poid_glace,ecart=@ecart,non_usinable=@non_usinable WHERE p_id=@p_id";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@p_id", Id);
+                    cmd.Parameters.AddWithValue("@brut", Brut);
+                    cmd.Parameters.AddWithValue("@is_finished", IsFinished);
+                    cmd.Parameters.AddWithValue("@dechets", Dechets);
+                    cmd.Parameters.AddWithValue("@dfin", DFin);
+                    cmd.Parameters.AddWithValue("@hfin", HFin);
+                    cmd.Parameters.AddWithValue("@net", Net);
+                    cmd.Parameters.AddWithValue("@nbr_caisse", NbrCaisse);
+                    cmd.Parameters.AddWithValue("@caisses_normales", CaisseNormale);
+                    cmd.Parameters.AddWithValue("@plateaux", Plateaux);
+                    cmd.Parameters.AddWithValue("@poid_caisse", PoidCaisse);
+                    cmd.Parameters.AddWithValue("@nbr_palettes", NbrPalette);
+                    cmd.Parameters.AddWithValue("@poid_glace", PoidGlace);
+                    cmd.Parameters.AddWithValue("@ecart", Ecart);
+                    cmd.Parameters.AddWithValue("@non_usinable", NonUsinable);
+                    conn.Open();
+                    int row = cmd.ExecuteNonQuery();
+                    if (row > 0) isSuccess = true;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+                finally
+                {
+                    conn.Close();
+                }
             }
             return isSuccess;
         }

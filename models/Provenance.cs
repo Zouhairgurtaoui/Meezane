@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
+using System.Windows.Forms;
 
 namespace scale.models
 {
@@ -33,7 +34,9 @@ namespace scale.models
                 adapter.Fill(dt);
 
             }
-            catch (Exception ex) { }
+            catch (Exception ex) {
+                MessageBox.Show(ex.Message);
+            }
             finally
             {
                 conn.Close();
@@ -60,7 +63,7 @@ namespace scale.models
 
             }
             catch (Exception ex) {
-
+                MessageBox.Show(ex.Message);
             }
             finally
             {
@@ -86,7 +89,9 @@ namespace scale.models
                 if (row > 0) isSuccess = true;
 
             }
-            catch (Exception ex) { }
+            catch (Exception ex) {
+                MessageBox.Show(ex.Message);
+            }
             finally
             {
                 conn.Close();

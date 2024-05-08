@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "s19qX5PnaVNKx4W8l3GQ7hsOXp1PCkmWkG5nfAWi/NJgk7r0Q3bGCXRTtYwk5SOqP1b5mFaHikg222ukdp4fHA==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Hp\\Documents\\projects\\scale\\scale.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Hp\\.nuget\\packages\\system.configuration.configurationmanager\\8.0.0\\system.configuration.configurationmanager.8.0.0.nupkg.sha512",
+    "C:\\Users\\Hp\\.nuget\\packages\\system.data.sqlclient\\4.8.6\\system.data.sqlclient.4.8.6.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,0 +1,14 @@
+C:\Users\Hp\Documents\projects\scale\bin\Debug\scale.exe.config
+C:\Users\Hp\Documents\projects\scale\bin\Debug\scale.exe
+C:\Users\Hp\Documents\projects\scale\bin\Debug\scale.pdb
+C:\Users\Hp\Documents\projects\scale\bin\Debug\System.Configuration.ConfigurationManager.dll
+C:\Users\Hp\Documents\projects\scale\bin\Debug\System.Data.SqlClient.dll
+C:\Users\Hp\Documents\projects\scale\obj\Debug\scale.csproj.AssemblyReference.cache
+C:\Users\Hp\Documents\projects\scale\obj\Debug\scale.MainForm.resources
+C:\Users\Hp\Documents\projects\scale\obj\Debug\scale.Properties.Resources.resources
+C:\Users\Hp\Documents\projects\scale\obj\Debug\scale.csproj.GenerateResource.cache
+C:\Users\Hp\Documents\projects\scale\obj\Debug\scale.csproj.CoreCompileInputs.cache
+C:\Users\Hp\Documents\projects\scale\obj\Debug\scale.csproj.CopyComplete
+C:\Users\Hp\Documents\projects\scale\obj\Debug\scale.exe
+C:\Users\Hp\Documents\projects\scale\obj\Debug\scale.pdb
+C:\Users\Hp\Documents\projects\scale\obj\Debug\scale.LoginForm.resources

@@ -30,7 +30,9 @@ namespace scale.models
                 adapter.Fill(dt);
 
             }
-            catch (Exception ex) { }
+            catch (Exception ex) {
+                Console.Write(ex.Message);
+            }
             finally
             {
                 conn.Close();
@@ -54,7 +56,13 @@ namespace scale.models
                 adapter.Fill(dt);
 
             }
-            catch (Exception ex) { }
+            catch (Exception ex) {
+                Console.Write(ex.Message);
+            }
+            finally
+            {
+                conn.Close();
+            }
             return dt;
         }
         public bool Insert()
@@ -74,7 +82,9 @@ namespace scale.models
                 int row = cmd.ExecuteNonQuery();
                 if (row > 0) isSuccess = true;
             }
-            catch (Exception ex) { }
+            catch (Exception ex) {
+                Console.Write(ex.Message);
+            }
             finally
             {
                 conn.Close();
