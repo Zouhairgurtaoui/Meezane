@@ -37,7 +37,7 @@ namespace scale.models
         public int NbrCaisse { get; set; }
         public bool CaisseNormale { get; set; }
         public bool Plateaux { get; set; }
-
+        public User Users { get; set; }
         public string DDebut { get; set; }
         public string HDebut { get; set; }
         public string DFin { get; set; }
@@ -48,6 +48,8 @@ namespace scale.models
         public int Ecart { get; set; }
         public int NonUsinable { get; set; }
         public bool IsFinished { get; set; }
+        public bool TareAvecCaisse { get; set; }
+        public bool TareSansCaisse { get; set; }
 
         static string myConnstring = ConfigurationManager.ConnectionStrings["connString"].ConnectionString;
 
@@ -125,7 +127,7 @@ namespace scale.models
             SqlConnection conn = new SqlConnection(myConnstring);
             try
             {
-               string query = "INSERT INTO Pesee(p_id,type_pesee,fr_id,pr_id,matricule,acc_id,prov_id,dest_id,brut,ddebut,hdebut,is_finished,tare,dechets,dfin,hfin,net,nbr_caisse,caisses_normales,plateaux,poid_caisse,nbr_palettes,poid_glace,ecart,non_usinable) VALUES(@p_id,@type_pesee,@fr_id,@pr_id,@matricule,@acc_id,@prov_id,@dest_id,@brut,@ddebut,@hdebut,@is_finished,@tare,@dechets,@dfin,@hfin,@net,@nbr_caisse,@caisses_normales,@plateaux,@poid_caisse,@nbr_palettes,@poid_glace,@ecart,@non_usinable)";
+               string query = "INSERT INTO Pesee(p_id,type_pesee,fr_id,pr_id,matricule,acc_id,prov_id,dest_id,brut,ddebut,hdebut,is_finished,tare,dechets,dfin,hfin,net,nbr_caisse,caisses_normales,plateaux,poid_caisse,nbr_palettes,poid_glace,ecart,non_usinable,id_user,tare_avec_caisse,tare_sans_caisse) VALUES(@p_id,@type_pesee,@fr_id,@pr_id,@matricule,@acc_id,@prov_id,@dest_id,@brut,@ddebut,@hdebut,@is_finished,@tare,@dechets,@dfin,@hfin,@net,@nbr_caisse,@caisses_normales,@plateaux,@poid_caisse,@nbr_palettes,@poid_glace,@ecart,@non_usinable,@id_user,@tare_avec_caisse,@tare_sans_caisse)";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@p_id",Id);
                 cmd.Parameters.AddWithValue("@type_pesee", Type);
@@ -152,6 +154,9 @@ namespace scale.models
                 cmd.Parameters.AddWithValue("@poid_glace", PoidGlace);
                 cmd.Parameters.AddWithValue("@ecart", Ecart);
                 cmd.Parameters.AddWithValue("@non_usinable", NonUsinable);
+                cmd.Parameters.AddWithValue("@id_user", Users.Id);
+                cmd.Parameters.AddWithValue("@tare_avec_caisse", TareAvecCaisse);
+                cmd.Parameters.AddWithValue("@tare_sans_caisse", TareSansCaisse);
                 conn.Open();
                 int row = cmd.ExecuteNonQuery();
                 if (row > 0) isSuccess = true;
@@ -192,6 +197,8 @@ namespace scale.models
                     cmd.Parameters.AddWithValue("@poid_glace", PoidGlace);
                     cmd.Parameters.AddWithValue("@ecart", Ecart);
                     cmd.Parameters.AddWithValue("@non_usinable", NonUsinable);
+                    cmd.Parameters.AddWithValue("@tare_avec_caisse", TareAvecCaisse);
+                    cmd.Parameters.AddWithValue("@tare_sans_caisse", TareSansCaisse);
                     conn.Open();
                     int row = cmd.ExecuteNonQuery();
                     if (row > 0) isSuccess = true;
@@ -225,6 +232,7 @@ namespace scale.models
                     cmd.Parameters.AddWithValue("@poid_glace", PoidGlace);
                     cmd.Parameters.AddWithValue("@ecart", Ecart);
                     cmd.Parameters.AddWithValue("@non_usinable", NonUsinable);
+                   
                     conn.Open();
                     int row = cmd.ExecuteNonQuery();
                     if (row > 0) isSuccess = true;
@@ -238,6 +246,29 @@ namespace scale.models
                     conn.Close();
                 }
             }
+            return isSuccess;
+        }
+
+        public bool Delete()
+        {
+            bool isSuccess = false;
+            SqlConnection conn = new SqlConnection(myConnstring);
+
+            try
+            {
+                string query = "DELETE FROM Pesee WHERE p_id=@p_id";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@p_id", Id);
+                conn.Open();
+                if (cmd.ExecuteNonQuery()>0)
+                {
+                    isSuccess = true;
+                }
+            }catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                conn.Close();
+            }finally { conn.Close(); }
             return isSuccess;
         }
 

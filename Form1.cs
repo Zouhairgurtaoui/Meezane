@@ -7,20 +7,29 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Drawing;
+using System.IO.Ports;
 using System.Linq;
 using System.Runtime.Remoting.Contexts;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace scale
 {
     public partial class MainForm : Form
     {
-        private Timer timer;
+        private System.Windows.Forms.Timer timer;
         private static readonly string myConnstring = ConfigurationManager.ConnectionStrings["connString"].ConnectionString;
         private static string buttonClicked ;
+        private Pesee p = new Pesee();
+        private delegate void SetTextDeleg(string message);
+
+
+
+
         public MainForm()
         {
             InitializeComponent();
@@ -29,7 +38,37 @@ namespace scale
             InitializeTimer();
             lst_load();
             tbl_inf_load();
+
+            serialPort.PortName = "COM2";
+            
+            serialPort.ReadTimeout = 500;
+            serialPort.WriteTimeout = 500;
+            try
+            {
+                serialPort.Open();
+                
+            }catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                serialPort.Close();
+
+                serialPort.Dispose();
+
+            }
+
+
         }
+        private void si_DataReceived(string data) { pesee.Text = data.Trim(); }
+
+
+        private void serialPort_DataReceived_1(object sender, SerialDataReceivedEventArgs e)
+        {
+            Thread.Sleep(500);
+            string message = serialPort.ReadLine();
+
+            this.BeginInvoke(new SetTextDeleg(si_DataReceived), new object[] { message });
+        }
+
         private void InitializeFullscreenForm()
         {
             
@@ -37,10 +76,15 @@ namespace scale
             this.WindowState = FormWindowState.Maximized; 
         }
 
+        public void SetUser(User user)
+        {
+            p.Users = user;
+        }
+
         private void InitializeTimer()
         {
 
-            timer = new Timer
+            timer = new System.Windows.Forms.Timer
             {
                 Interval = 1000
             };
@@ -51,12 +95,23 @@ namespace scale
             
             timer.Start();
         }
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (serialPort.IsOpen)
+            {
+                serialPort.Close();
+                serialPort.Dispose();
+            }
+        }
 
+        
         private void Timer_Tick(object sender, EventArgs e)
         {
             
             hour.Text = DateTime.Now.ToString("H:mm:ss");
+             
         }
+        
         private void Clear()
         {
             camion.Text = string.Empty;
@@ -117,6 +172,7 @@ namespace scale
             fournisseurBox.DataSource = fr.Select();
             fournisseurBox.DisplayMember = "fr_name";
         }
+       
         void display()
         {
             if (typePesee.Text.Equals("ENTREE"))
@@ -233,8 +289,12 @@ namespace scale
 
         private void tare_Click(object sender, EventArgs e)
         {
+            hide();
             tareBox.Text = pesee.Text.Trim();
-            display();
+            if (typePesee.Text.Equals("ENTREE"))
+            {
+                display();
+            }
 
             valider.Visible = true;
             buttonClicked = "tare";
@@ -242,7 +302,7 @@ namespace scale
         }
         public void lst_load()
         {
-            Pesee p = new Pesee();
+            
             DataTable dt = p.Select();
             lstPesee.DataSource = dt;
             lstPesee.DisplayMember = "p_id";
@@ -277,6 +337,15 @@ namespace scale
             tbl_inf.Columns["DFin"].DataPropertyName = "dfin";
             tbl_inf.Columns["HDebut"].DataPropertyName = "hdebut";
             tbl_inf.Columns["HFin"].DataPropertyName = "hfin";
+            tbl_inf.Columns["p_id"].Visible = false;
+            tbl_inf.Columns["matricule"].Visible = false;
+            tbl_inf.Columns["fr_name"].Visible = false;
+            tbl_inf.Columns["type_pesee"].Visible = false;
+            tbl_inf.Columns["pr_name"].Visible = false;
+            tbl_inf.Columns["ddebut"].Visible = false;
+            tbl_inf.Columns["dfin"].Visible = false;
+            tbl_inf.Columns["hdebut"].Visible = false;
+            tbl_inf.Columns["hfin"].Visible = false;
 
 
         }
@@ -301,8 +370,10 @@ namespace scale
 
         private void annuler_Click(object sender, EventArgs e)
         {
+            
             Clear();
             
+
         }
 
         private void destination_TextChanged(object sender, EventArgs e)
@@ -312,6 +383,7 @@ namespace scale
 
         private void brut_Click(object sender, EventArgs e)
         {
+            brutBox.Text = pesee.Text.Trim();
             hide();
             if (typePesee.Text.Equals("SORTIE") || typePesee.Text.Equals("TRANSFER"))
             {
@@ -319,7 +391,7 @@ namespace scale
                 pes_id.Visible = true;
                 display();
             }
-            brutBox.Text = pesee.Text.Trim();
+            
             valider.Visible = true;
             buttonClicked = "brut";
             
@@ -493,7 +565,7 @@ namespace scale
 
 
                     //pesee
-                    Pesee p = new Pesee();
+                    
                     dt = p.Select_last();
                     string[] mp = null;
                     if (dt.Rows.Count > 0)
@@ -537,13 +609,15 @@ namespace scale
                     p.DFin = null;
                     p.IsFinished = false;
                     p.NonUsinable = 0;
+                    p.TareAvecCaisse = tareAvecCaisse.Checked;
+                    p.TareSansCaisse = tareSansCaisse.Checked;
                     p.Net = (p.Brut - (p.Tare +p.Dechets+ p.PoidGlace + p.PoidCaisse + p.Ecart+(p.NbrPalette * 26)));
                     p.Insert();
                     Clear();
                 }
                 else
                 {
-                    Pesee p = new Pesee();
+                    
                     int bru = int.Parse(brutBox.Text.Trim());
                     int pglace = int.Parse(pGlace.Text.Trim());
                     int pcaisse = int.Parse(PoidCaisse.Text.Trim());
@@ -572,6 +646,8 @@ namespace scale
                     p.DFin = date.Text;
                     p.IsFinished = true;
                     p.NonUsinable = nusinable;
+                    p.TareAvecCaisse = tareAvecCaisse.Checked;
+                    p.TareSansCaisse = tareSansCaisse.Checked;
                     p.Net = (p.Brut - (p.Tare + p.Dechets + p.PoidGlace + p.PoidCaisse + p.Ecart + (p.NbrPalette * 26)));
                     brut1.Text= p.Brut.ToString();
                     tare1.Text = p.Tare.ToString();
@@ -741,7 +817,7 @@ namespace scale
 
 
                     //pesee
-                    Pesee p = new Pesee();
+                    
                     dt = p.Select_last();
                     string[] mp = null;
                     if (dt.Rows.Count > 0)
@@ -782,6 +858,8 @@ namespace scale
                     p.DFin = null;
                     p.IsFinished = false;
                     p.NonUsinable = 0;
+                    p.TareAvecCaisse = tareAvecCaisse.Checked;
+                    p.TareSansCaisse = tareSansCaisse.Checked;
                     p.Net = (p.Brut != 0)?(p.Brut - (p.Tare + p.PoidGlace + p.PoidCaisse + p.Ecart + (p.NbrPalette * 26))):0;
                     p.Insert();
                     Clear();
@@ -790,7 +868,7 @@ namespace scale
                 else
                 {
                     
-                    Pesee p = new Pesee();
+                    
                     int tar = int.Parse(tareBox.Text.Trim());
                     int pglace = int.Parse(pGlace.Text.Trim());
                     int pcaisse = int.Parse(PoidCaisse.Text.Trim());
@@ -819,6 +897,8 @@ namespace scale
                     p.DFin = date.Text;
                     p.IsFinished = true;
                     p.NonUsinable = nusinable;
+                    p.TareAvecCaisse = tareAvecCaisse.Checked;
+                    p.TareSansCaisse = tareSansCaisse.Checked;
                     p.Net = (p.Brut - (p.Tare + p.Dechets + p.PoidGlace + p.PoidCaisse + p.Ecart + (p.NbrPalette * 26)));
                     brut1.Text = p.Brut.ToString();
                     tare1.Text = p.Tare.ToString();
@@ -959,6 +1039,52 @@ namespace scale
             }
         }
 
+        private void annulerPesee_Click(object sender, EventArgs e)
+        {
+            if (tbl_inf.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Please select a row to delete.");
+                return;
+            }
+            
+            int index = tbl_inf.CurrentCell.RowIndex;
+            DataGridViewRow selectedRow = tbl_inf.Rows[index];
+            p.Id = selectedRow.Cells["NPesee"].Value.ToString();
+            User user = new User();
+            string password = Microsoft.VisualBasic.Interaction.InputBox("Enter password:", "Password Prompt");
+            DataTable dt = user.Select();
+            if (dt.Rows.Count > 0)
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    if (password.Equals((string)dt.Rows[i]["user_password"]))
+                    {
+                        
+                        p.Delete();
+                        MessageBox.Show($"Pesee {p.Id} Deleted successfully");
+                        break;
+                    }
+                    else
+                    {
+
+                        MessageBox.Show("Incorrect password" + dt.Rows[i]["password"]);
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("No User Found.");
+            }
+        }
+
+        private void synthese_Click(object sender, EventArgs e)
+        {
+            SyntheseForm sf = new SyntheseForm();
+            sf.Show();
+        }
+
         
     }
-}
+    }
+
