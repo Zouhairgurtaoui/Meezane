@@ -53,8 +53,6 @@
             this.label2 = new System.Windows.Forms.Label();
             this.acceuil = new System.Windows.Forms.ComboBox();
             this.panel5 = new System.Windows.Forms.Panel();
-            this.label19 = new System.Windows.Forms.Label();
-            this.tare1 = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.tareAvecCaisse = new System.Windows.Forms.RadioButton();
             this.tareSansCaisse = new System.Windows.Forms.RadioButton();
@@ -66,10 +64,6 @@
             this.label10 = new System.Windows.Forms.Label();
             this.valider = new System.Windows.Forms.Button();
             this.frCode = new System.Windows.Forms.TextBox();
-            this.label18 = new System.Windows.Forms.Label();
-            this.netMp = new System.Windows.Forms.TextBox();
-            this.label17 = new System.Windows.Forms.Label();
-            this.brut1 = new System.Windows.Forms.TextBox();
             this.label16 = new System.Windows.Forms.Label();
             this.nonUsinable = new System.Windows.Forms.TextBox();
             this.label15 = new System.Windows.Forms.Label();
@@ -371,8 +365,6 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panel5.AutoSize = true;
             this.panel5.BackColor = System.Drawing.SystemColors.AppWorkspace;
-            this.panel5.Controls.Add(this.label19);
-            this.panel5.Controls.Add(this.tare1);
             this.panel5.Controls.Add(this.groupBox1);
             this.panel5.Controls.Add(this.label22);
             this.panel5.Controls.Add(this.nbrPalettes);
@@ -382,10 +374,6 @@
             this.panel5.Controls.Add(this.label10);
             this.panel5.Controls.Add(this.valider);
             this.panel5.Controls.Add(this.frCode);
-            this.panel5.Controls.Add(this.label18);
-            this.panel5.Controls.Add(this.netMp);
-            this.panel5.Controls.Add(this.label17);
-            this.panel5.Controls.Add(this.brut1);
             this.panel5.Controls.Add(this.label16);
             this.panel5.Controls.Add(this.nonUsinable);
             this.panel5.Controls.Add(this.label15);
@@ -415,25 +403,6 @@
             this.panel5.Name = "panel5";
             this.panel5.Size = new System.Drawing.Size(963, 391);
             this.panel5.TabIndex = 4;
-            // 
-            // label19
-            // 
-            this.label19.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point(776, 89);
-            this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(45, 20);
-            this.label19.TabIndex = 56;
-            this.label19.Text = "Tare:";
-            // 
-            // tare1
-            // 
-            this.tare1.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.tare1.BackColor = System.Drawing.SystemColors.Control;
-            this.tare1.Location = new System.Drawing.Point(852, 86);
-            this.tare1.Name = "tare1";
-            this.tare1.Size = new System.Drawing.Size(100, 26);
-            this.tare1.TabIndex = 55;
             // 
             // groupBox1
             // 
@@ -564,46 +533,6 @@
             this.frCode.Size = new System.Drawing.Size(58, 30);
             this.frCode.TabIndex = 41;
             this.frCode.TextChanged += new System.EventHandler(this.frCode_TextChanged);
-            // 
-            // label18
-            // 
-            this.label18.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(774, 128);
-            this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(69, 20);
-            this.label18.TabIndex = 40;
-            this.label18.Text = "Net MP :";
-            // 
-            // netMp
-            // 
-            this.netMp.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.netMp.Enabled = false;
-            this.netMp.Location = new System.Drawing.Point(852, 128);
-            this.netMp.Name = "netMp";
-            this.netMp.ReadOnly = true;
-            this.netMp.Size = new System.Drawing.Size(100, 26);
-            this.netMp.TabIndex = 39;
-            // 
-            // label17
-            // 
-            this.label17.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(774, 45);
-            this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(47, 20);
-            this.label17.TabIndex = 32;
-            this.label17.Text = "Brut :";
-            // 
-            // brut1
-            // 
-            this.brut1.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.brut1.Location = new System.Drawing.Point(852, 45);
-            this.brut1.Name = "brut1";
-            this.brut1.ReadOnly = true;
-            this.brut1.Size = new System.Drawing.Size(100, 26);
-            this.brut1.TabIndex = 31;
-            this.brut1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // label16
             // 
@@ -1130,8 +1059,6 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.ComboBox camion;
         private System.Windows.Forms.Button annuler;
-        private System.Windows.Forms.Label label17;
-        private System.Windows.Forms.TextBox brut1;
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.TextBox nonUsinable;
         private System.Windows.Forms.Label label15;
@@ -1144,8 +1071,6 @@
         private System.Windows.Forms.RadioButton caisseNormale;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.TextBox nbreCaisse;
-        private System.Windows.Forms.Label label18;
-        private System.Windows.Forms.TextBox netMp;
         private System.Windows.Forms.Label label21;
         private System.Windows.Forms.Panel panel7;
         private System.Windows.Forms.DataGridView tbl_inf;
@@ -1162,8 +1087,6 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.RadioButton tareAvecCaisse;
         private System.Windows.Forms.RadioButton tareSansCaisse;
-        private System.Windows.Forms.Label label19;
-        private System.Windows.Forms.TextBox tare1;
         private System.Windows.Forms.DataGridViewTextBoxColumn NPesee;
         private System.Windows.Forms.DataGridViewTextBoxColumn Matricule;
         private System.Windows.Forms.DataGridViewTextBoxColumn Type;

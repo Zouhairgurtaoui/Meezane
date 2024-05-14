@@ -105,7 +105,7 @@ namespace scale.models
             DataTable dt = new DataTable();
             try
             {
-                string query = "SELECT TOP 1 * FROM Pesee ORDER BY p_id DESC";
+                string query = "SELECT TOP 1 *FROM Pesee ORDER BY   CAST(    SUBSTRING( p_id,     CHARINDEX('-', p_id) + 1,     LEN(p_id) - CHARINDEX('-', p_id)   ) AS INT  ) DESC;";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 SqlDataAdapter adapter = new SqlDataAdapter(cmd);
                 conn.Open();

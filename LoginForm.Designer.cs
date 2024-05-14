@@ -62,7 +62,7 @@
             // 
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(277, 21);
+            this.label4.Location = new System.Drawing.Point(293, 21);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(174, 37);
             this.label4.TabIndex = 0;
@@ -98,6 +98,7 @@
             this.password.PasswordChar = '*';
             this.password.Size = new System.Drawing.Size(362, 35);
             this.password.TabIndex = 3;
+            this.password.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // label3
             // 
@@ -116,6 +117,7 @@
             this.Username.Name = "Username";
             this.Username.Size = new System.Drawing.Size(362, 35);
             this.Username.TabIndex = 1;
+            this.Username.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // label2
             // 
@@ -129,10 +131,12 @@
             // 
             // Login
             // 
+            this.Login.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.Login.BackColor = System.Drawing.Color.DarkBlue;
             this.Login.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Login.ForeColor = System.Drawing.SystemColors.ControlLightLight;
-            this.Login.Location = new System.Drawing.Point(308, 395);
+            this.Login.Location = new System.Drawing.Point(315, 395);
             this.Login.Name = "Login";
             this.Login.Size = new System.Drawing.Size(160, 62);
             this.Login.TabIndex = 3;

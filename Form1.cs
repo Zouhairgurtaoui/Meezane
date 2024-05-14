@@ -313,7 +313,7 @@ namespace scale
             DataTable dt = new DataTable();
             try
             {
-                string query = "SELECT p.p_id,p.matricule,p.type_pesee,pr.pr_name,fr.fr_name,p.ddebut,p.dfin,p.hdebut,p.hfin FROM Pesee p,Produit pr,Fournisseur fr where p.pr_id=pr.pr_id AND p.fr_id=fr.fr_id ORDER BY p.p_id DESC";
+                string query = "SELECT p.p_id, p.matricule, p.type_pesee, pr.pr_name, fr.fr_name, p.ddebut, p.dfin, p.hdebut, p.hfin FROM Pesee p JOIN Produit pr ON p.pr_id = pr.pr_id JOIN Fournisseur fr ON p.fr_id = fr.fr_id WHERE p.dfin >= DATEADD(DAY, -3, GETDATE()) OR p.ddebut >= DATEADD(DAY, -3, GETDATE()) ORDER BY p.p_id DESC;";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 SqlDataAdapter adapter = new SqlDataAdapter(cmd);
                 conn.Open();
@@ -385,6 +385,7 @@ namespace scale
         {
             brutBox.Text = pesee.Text.Trim();
             hide();
+
             if (typePesee.Text.Equals("SORTIE") || typePesee.Text.Equals("TRANSFER"))
             {
                 label10.Visible = true;
@@ -648,10 +649,8 @@ namespace scale
                     p.NonUsinable = nusinable;
                     p.TareAvecCaisse = tareAvecCaisse.Checked;
                     p.TareSansCaisse = tareSansCaisse.Checked;
-                    p.Net = (p.Brut - (p.Tare + p.Dechets + p.PoidGlace + p.PoidCaisse + p.Ecart + (p.NbrPalette * 26)));
-                    brut1.Text= p.Brut.ToString();
-                    tare1.Text = p.Tare.ToString();
-                    netMp.Text = p.Net.ToString();
+                    p.Net = (p.Brut - (p.Tare + p.Dechets + p.PoidGlace + (p.PoidCaisse*p.PoidCaisse) + p.Ecart + (p.NbrPalette * 26)));
+                    
                     p.Update("tare");
 
                     Clear();
@@ -860,7 +859,7 @@ namespace scale
                     p.NonUsinable = 0;
                     p.TareAvecCaisse = tareAvecCaisse.Checked;
                     p.TareSansCaisse = tareSansCaisse.Checked;
-                    p.Net = (p.Brut != 0)?(p.Brut - (p.Tare + p.PoidGlace + p.PoidCaisse + p.Ecart + (p.NbrPalette * 26))):0;
+                    p.Net = (p.Brut != 0)?(p.Brut - (p.Tare + p.PoidGlace + (p.PoidCaisse*p.NbrCaisse) + p.Ecart + (p.NbrPalette * 26))):0;
                     p.Insert();
                     Clear();
 
@@ -899,14 +898,13 @@ namespace scale
                     p.NonUsinable = nusinable;
                     p.TareAvecCaisse = tareAvecCaisse.Checked;
                     p.TareSansCaisse = tareSansCaisse.Checked;
-                    p.Net = (p.Brut - (p.Tare + p.Dechets + p.PoidGlace + p.PoidCaisse + p.Ecart + (p.NbrPalette * 26)));
-                    brut1.Text = p.Brut.ToString();
-                    tare1.Text = p.Tare.ToString();
-                    netMp.Text = p.Net.ToString();
+                    p.Net = (p.Brut - (p.Tare + p.Dechets + p.PoidGlace + (p.PoidCaisse*p.NbrCaisse) + p.Ecart + (p.NbrPalette * 26)));
+                   
                     p.Update("brut");
                     Clear();
                 }
             }
+            setEnabled(true);
             Clear();
             lst_load();
             tbl_inf_load();
@@ -946,7 +944,7 @@ namespace scale
 
 
 
-        // Assuming pes_id is a ComboBox or similar control
+        
         private void pes_id_SelectedValueChanged(object sender, EventArgs e)
         {
             SqlConnection conn = new SqlConnection(myConnstring);
@@ -1024,7 +1022,7 @@ namespace scale
                         destination.Text = dest_name;
                     }
 
-                    // Set other controls
+                    
                     setEnabled(false);
                     camion.Text = mat;
                 }
@@ -1036,6 +1034,7 @@ namespace scale
             finally
             {
                 conn.Close();
+                
             }
         }
 
@@ -1051,31 +1050,36 @@ namespace scale
             DataGridViewRow selectedRow = tbl_inf.Rows[index];
             p.Id = selectedRow.Cells["NPesee"].Value.ToString();
             User user = new User();
-            string password = Microsoft.VisualBasic.Interaction.InputBox("Enter password:", "Password Prompt");
-            DataTable dt = user.Select();
-            if (dt.Rows.Count > 0)
+            string password = PasswordInputBox.Show("Enter password:", "Password Prompt");
+            if (password != null)
             {
-                for (int i = 0; i < dt.Rows.Count; i++)
+                DataTable dt = user.Select();
+                if (dt.Rows.Count > 0)
                 {
-                    if (password.Equals((string)dt.Rows[i]["user_password"]))
+                    for (int i = 0; i < dt.Rows.Count; i++)
                     {
-                        
-                        p.Delete();
-                        MessageBox.Show($"Pesee {p.Id} Deleted successfully");
-                        break;
-                    }
-                    else
-                    {
+                        if (password.Equals((string)dt.Rows[i]["user_password"]))
+                        {
 
-                        MessageBox.Show("Incorrect password" + dt.Rows[i]["password"]);
-                        break;
+                            p.Delete();
+                            MessageBox.Show($"Pesee {p.Id} Deleted successfully");
+                            tbl_inf_load();
+                            break;
+                        }
+                        else
+                        {
+
+                            MessageBox.Show("Incorrect password" + dt.Rows[i]["password"]);
+                            break;
+                        }
                     }
                 }
+                else
+                {
+                    MessageBox.Show("No User Found.");
+                }
             }
-            else
-            {
-                MessageBox.Show("No User Found.");
-            }
+            
         }
 
         private void synthese_Click(object sender, EventArgs e)

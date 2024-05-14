@@ -25,7 +25,8 @@ namespace scale
         private void date_ValueChanged(object sender, EventArgs e)
         {
             SqlConnection conn = new SqlConnection(myConnstring);
-            string start_time = date.Value.ToString("M/d/yyyy");
+            string end_time = todate.Value.ToString("M/d/yyyy");
+            string start_time = fromdate.Value.ToString("M/d/yyyy");
             Fournisseur fr = new Fournisseur();
 
             DataTable dt = fr.Select(fournisseur.Text.Trim());
@@ -34,10 +35,11 @@ namespace scale
                 try
                 {
                     
-                    string query = "SELECT pr.pr_name AS produit , SUM(p.net) AS quantity, SUM(p.dechets) AS dechets,SUM(p.ecart) AS Ecart,SUM(non_usinable) AS 'Non usinable' FROM Pesee p INNER JOIN   Produit pr ON p.pr_id = pr.pr_id WHERE  p.fr_id = @fr_id  AND p.ddebut >= @start_time  AND p.ddebut <= DATEADD(MONTH, DATEDIFF(MONTH, 0, @start_time) + 1, -1) GROUP BY pr.pr_name";
+                    string query = "SELECT pr.pr_name AS produit , SUM(p.net) AS quantity, SUM(p.dechets) AS dechets,SUM(p.ecart) AS Ecart,SUM(non_usinable) AS 'Non usinable' FROM Pesee p INNER JOIN   Produit pr ON p.pr_id = pr.pr_id WHERE  p.fr_id = @fr_id  AND p.ddebut >= @start_time  AND p.dfin <= @end_time GROUP BY pr.pr_name";
                     SqlCommand cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@fr_id", (int)dt.Rows[0]["fr_id"]);
                     cmd.Parameters.AddWithValue("@start_time", start_time);
+                    cmd.Parameters.AddWithValue("@end_time", end_time);
                     SqlDataAdapter sda = new SqlDataAdapter(cmd);
                     dt = new DataTable();
                     sda.Fill(dt);
