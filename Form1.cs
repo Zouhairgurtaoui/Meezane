@@ -1,11 +1,13 @@
 ﻿using scale.models;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO.Ports;
 using System.Linq;
@@ -408,6 +410,32 @@ namespace scale
             produit1.Enabled = enabled;
 
         }
+        void Print(ReportDetail rp)
+        {
+            rptPesee.SetParameterValue("PeseeN", rp.PeseeN);
+            rptPesee.SetParameterValue("typeOperation", rp.TypeOperation);
+            rptPesee.SetParameterValue("destination",rp.Destination);
+            rptPesee.SetParameterValue("provenance",rp.Provenance);
+            rptPesee.SetParameterValue("matricule",rp.Matricule);
+            rptPesee.SetParameterValue("produit",rp.Produit);
+            rptPesee.SetParameterValue("fournisseur",rp.Fournisseur);
+            rptPesee.SetParameterValue("debut",rp.Debut);
+            rptPesee.SetParameterValue("fin", rp.Fin);
+            rptPesee.SetParameterValue("BRUT",rp.Brut);
+            rptPesee.SetParameterValue("TARE", rp.Tare);
+            rptPesee.SetParameterValue("POIDCAIPAL", rp.PoidCaisPal);
+            rptPesee.SetParameterValue("ECART", rp.Ecart);
+            rptPesee.SetParameterValue("NONUSINABLE", rp.NonUsinable);
+            rptPesee.SetParameterValue("DECHETS", rp.Dechets);
+            rptPesee.SetParameterValue("NETMP", rp.Net);
+            rptPesee.SetParameterValue("typeTare", rp.TypeTare);
+            rptPesee.SetParameterValue("operateur", rp.Operateur);
+            //rptPesee.SaveAs(rp.PeseeN);
+            string savePath = $"C:\\Users\\Hp\\Desktop\\{rp.PeseeN}.doc";
+            rptPesee.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.WordForWindows, savePath);
+            
+            rptPesee.PrintToPrinter(1,false,1,1);
+        }
         private void valider_Click(object sender, EventArgs e)
         {
             if (buttonClicked.Equals("brut") )
@@ -448,6 +476,7 @@ namespace scale
                     Produit pro1 = new Produit();
                     FournisseurCode for_code = new FournisseurCode();
                     Categorie cat = new Categorie();
+                    
 
                     //provenance
 
@@ -614,6 +643,30 @@ namespace scale
                     p.TareSansCaisse = tareSansCaisse.Checked;
                     p.Net = (p.Brut - (p.Tare +p.Dechets+ p.PoidGlace + p.PoidCaisse + p.Ecart+(p.NbrPalette * 26)));
                     p.Insert();
+                    int poid = (p.PoidCaisse * p.NbrCaisse) + (p.NbrPalette * 26);
+
+                    ReportDetail rp = new ReportDetail()
+                    {
+                        PeseeN = p.Id,
+                        TypeOperation = p.Type,
+                        Operateur = p.Users.UserName,
+                        Destination = destination.Text,
+                        Provenance = prv,
+                        Matricule = p.Matricule,
+                        Produit = produit1.Text.ToUpper(),
+                        Fournisseur = fr_name.ToUpper(),
+                        Debut = p.DDebut + " "+p.HDebut,
+                        Fin = p.DFin + " " + p.HFin,
+                        Brut = p.Brut.ToString(),
+                        Tare = p.Tare.ToString(),
+                        PoidCaisPal = $"{poid}",
+                        Ecart = p.Ecart.ToString(),
+                        NonUsinable = p.NonUsinable.ToString(),
+                        Dechets = p.Dechets.ToString(),
+                        Net = p.Net.ToString(),
+                        TypeTare = (tareAvecCaisse.Checked)? " ":" "
+                    };
+                    Print(rp);
                     Clear();
                 }
                 else
@@ -627,7 +680,9 @@ namespace scale
                     int ecar = int.Parse(Ecart.Text.Trim());
                     int nusinable = int.Parse(nonUsinable.Text.Trim());
                     int nPalettes = int.Parse(nbrPalettes.Text.Trim());
-
+                    string prov = provenance.Text;
+                    string fr_name = fournisseurBox.Text;
+                   
                     DataTable dt = p.Select(pes_id.Text);
                     p.Id = pes_id.Text;
                     int tare = (int)dt.Rows[0]["tare"];
@@ -652,7 +707,29 @@ namespace scale
                     p.Net = (p.Brut - (p.Tare + p.Dechets + p.PoidGlace + (p.PoidCaisse*p.PoidCaisse) + p.Ecart + (p.NbrPalette * 26)));
                     
                     p.Update("tare");
-
+                    int poid = (p.PoidCaisse * p.NbrCaisse) + (p.NbrPalette * 26);
+                    ReportDetail rp = new ReportDetail()
+                    {
+                        PeseeN = p.Id.ToString(),
+                        TypeOperation = dt.Rows[0]["type_pesee"].ToString(),
+                        Operateur = p.Users.UserName,
+                        Destination = destination.Text.Trim(),
+                        Provenance = prov.ToString(),
+                        Matricule = camion.Text,
+                        Produit = produit1.Text.ToUpper(),
+                        Fournisseur = fr_name,
+                        Debut = Convert.ToDateTime(dt.Rows[0]["ddebut"]).ToString("dd/MM/yyyy") + " " + ((TimeSpan)dt.Rows[0]["hdebut"]).ToString(@"hh\:mm\:ss").ToString(),
+                        Fin = p.DFin.ToString() + " " + p.HFin.ToString(),
+                        Brut = p.Brut.ToString(),
+                        Tare = p.Tare.ToString(),
+                        PoidCaisPal = poid.ToString(),
+                        Ecart = p.Ecart.ToString(),
+                        NonUsinable = p.NonUsinable.ToString(),
+                        Dechets = p.Dechets.ToString(),
+                        Net = p.Net.ToString(),
+                        TypeTare = tareAvecCaisse.Checked ? "Tare Avec Caisse" : "Tare Sans Caisse"
+                    };
+                    Print(rp);
                     Clear();
 
 
@@ -861,6 +938,30 @@ namespace scale
                     p.TareSansCaisse = tareSansCaisse.Checked;
                     p.Net = (p.Brut != 0)?(p.Brut - (p.Tare + p.PoidGlace + (p.PoidCaisse*p.NbrCaisse) + p.Ecart + (p.NbrPalette * 26))):0;
                     p.Insert();
+                    int poid = (p.PoidCaisse * p.NbrCaisse) + (p.NbrPalette * 26);
+                  
+                    ReportDetail rp = new ReportDetail()
+                    {
+                        PeseeN = p.Id,
+                        TypeOperation = p.Type,
+                        Operateur = p.Users.UserName,
+                        Destination = destination.Text,
+                        Provenance = prv,
+                        Matricule = p.Matricule,
+                        Produit = produit1.Text.ToUpper(),
+                        Fournisseur = fr_name.ToUpper(),
+                        Debut = p.DDebut + " " + p.HDebut,
+                        Fin = p.DFin + " " + p.HFin,
+                        Brut = p.Brut.ToString(),
+                        Tare = p.Tare.ToString(),
+                        PoidCaisPal = $"{poid}",
+                        Ecart = p.Ecart.ToString(),
+                        NonUsinable = p.NonUsinable.ToString(),
+                        Dechets = p.Dechets.ToString(),
+                        Net = p.Net.ToString(),
+                        TypeTare = (tareAvecCaisse.Checked) ? " " : " "
+                    };
+                    Print(rp);
                     Clear();
 
                 }
@@ -876,6 +977,9 @@ namespace scale
                     int ecar = int.Parse(Ecart.Text.Trim());
                     int nusinable = int.Parse(nonUsinable.Text.Trim());
                     int nPalettes = int.Parse(nbrPalettes.Text.Trim());
+                    string prv = provenance.Text;
+                    string fr_name = fournisseurBox.Text;
+                    
 
                     DataTable dt = p.Select(pes_id.Text);
                     p.Id = pes_id.Text;
@@ -901,6 +1005,37 @@ namespace scale
                     p.Net = (p.Brut - (p.Tare + p.Dechets + p.PoidGlace + (p.PoidCaisse*p.NbrCaisse) + p.Ecart + (p.NbrPalette * 26)));
                    
                     p.Update("brut");
+
+                    int poid = (p.PoidCaisse * p.NbrCaisse) + (p.NbrPalette * 26);
+                    try
+                    {
+                        ReportDetail rp = new ReportDetail()
+                        {
+                            PeseeN = p.Id.ToString(),
+                            TypeOperation = dt.Rows[0]["type_pesee"].ToString(),
+                            Operateur = p.Users.UserName,
+                            Destination = destination.Text.Trim(),
+                            Provenance = prv.ToString(),
+                            Matricule = camion.Text,
+                            Produit = produit1.Text.ToUpper(),
+                            Fournisseur = fr_name,
+                            Debut = Convert.ToDateTime(dt.Rows[0]["ddebut"]).ToString("dd/MM/yyyy") + " " + ((TimeSpan)dt.Rows[0]["hdebut"]).ToString(@"hh\:mm\:ss").ToString(),
+                            Fin = p.DFin.ToString() + " " + p.HFin.ToString(),
+                            Brut = p.Brut.ToString(),
+                            Tare = p.Tare.ToString(),
+                            PoidCaisPal = poid.ToString(),
+                            Ecart = p.Ecart.ToString(),
+                            NonUsinable = p.NonUsinable.ToString(),
+                            Dechets = p.Dechets.ToString(),
+                            Net = p.Net.ToString(),
+                            TypeTare = tareAvecCaisse.Checked ? "Tare Avec Caisse" : "Tare Sans Caisse"
+                        };
+
+                        Print(rp);
+                    }catch(Exception ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                    }
                     Clear();
                 }
             }
@@ -1088,7 +1223,75 @@ namespace scale
             sf.Show();
         }
 
-        
+        private void MainForm_Load(object sender, EventArgs e)
+        {
+            tbl_inf_load();
+            lst_load();
+        }
+
+        private void impremer_Click(object sender, EventArgs e)
+        {
+
+            try
+            {
+                DataRowView drv = lstPesee.SelectedItem as DataRowView;
+                string p_id = drv["p_id"].ToString();
+                SqlConnection conn = new SqlConnection(myConnstring);
+                DataTable dt = new DataTable();
+                try
+                {
+                   
+                    string query = "SELECT p.*,d.dest_name,f.fr_name,pr.pr_name,prv.prov_name,usr.username FROM Pesee p JOIN Destination AS d ON d.dest_id=p.dest_id JOIN Fournisseur AS f ON f.fr_id=p.fr_id JOIN Produit AS pr ON pr.pr_id=p.pr_id JOIN Provenance AS prv ON prv.prov_id=p.prov_id JOIN Users AS usr ON usr.id=p.id_user WHERE p.p_id =@p_id";
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@p_id", p_id);
+                    SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                    sda.Fill(dt);
+
+
+                    int caipoi = ((int)dt.Rows[0]["nbr_caisse"]) * ((int)dt.Rows[0]["poid_caisse"]);
+                    int poid = caipoi + ((int)dt.Rows[0]["nbr_palettes"])*26;
+                ReportDetail rp = new ReportDetail()
+                {
+                    PeseeN = dt.Rows[0]["p_id"].ToString(),
+                    Operateur = dt.Rows[0]["username"].ToString(),
+                    TypeOperation = dt.Rows[0]["type_pesee"].ToString(),
+                    Destination = dt.Rows[0]["dest_name"].ToString(),
+                    Provenance = dt.Rows[0]["prov_name"].ToString(),
+                    Produit = dt.Rows[0]["pr_name"].ToString(),
+                    Matricule = dt.Rows[0]["matricule"].ToString(),
+                    Fournisseur = dt.Rows[0]["fr_name"].ToString(),
+                    Brut = dt.Rows[0]["brut"].ToString(),
+                    Tare = dt.Rows[0]["tare"].ToString(),
+                    Ecart = dt.Rows[0]["ecart"].ToString(),
+                    NonUsinable = dt.Rows[0]["non_usinable"].ToString(),
+                    Dechets = dt.Rows[0]["dechets"].ToString(),
+                    Debut = dt.Rows[0]["ddebut"].ToString() +" "+ dt.Rows[0]["hdebut"].ToString(),
+                    Fin = dt.Rows[0]["dfin"].ToString() + " " + dt.Rows[0]["hfin"].ToString(),
+                    TypeTare = ((bool)dt.Rows[0]["tare_avec_caisse"])? "Tare Avec Caisse": "Tare Sans Caisse",
+                    PoidCaisPal = poid.ToString(),
+                    Net = dt.Rows[0]["net"].ToString(),
+                };
+                Print(rp);
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+                finally
+                {
+                    conn.Close();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                MessageBox.Show("No Item Selected");
+            }
+            
+            //
+        }
     }
     }
 

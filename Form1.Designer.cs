@@ -100,10 +100,10 @@
             this.HDebut = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.DFin = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.HFin = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.printDocument = new System.Drawing.Printing.PrintDocument();
             this.panel6 = new System.Windows.Forms.Panel();
             this.annulerPesee = new System.Windows.Forms.Button();
             this.synthese = new System.Windows.Forms.Button();
+            this.rptPesee = new scale.rptPesee();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -267,6 +267,7 @@
             this.impremer.TabIndex = 3;
             this.impremer.Text = "Impremer Autre";
             this.impremer.UseVisualStyleBackColor = true;
+            this.impremer.Click += new System.EventHandler(this.impremer_Click);
             // 
             // lstPesee
             // 
@@ -1003,6 +1004,7 @@
             this.Name = "MainForm";
             this.Text = "Meezane";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
+            this.Load += new System.EventHandler(this.MainForm_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.panel2.ResumeLayout(false);
@@ -1076,7 +1078,6 @@
         private System.Windows.Forms.DataGridView tbl_inf;
         private System.Windows.Forms.TextBox frCode;
         private System.Windows.Forms.Button valider;
-        private System.Drawing.Printing.PrintDocument printDocument;
         private System.Windows.Forms.ComboBox acceuil;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.ComboBox pes_id;
@@ -1099,6 +1100,7 @@
         private System.Windows.Forms.Panel panel6;
         private System.Windows.Forms.Button annulerPesee;
         private System.Windows.Forms.Button synthese;
+        private rptPesee rptPesee;
     }
 }
 
