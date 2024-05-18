@@ -25,9 +25,10 @@ namespace scale
     {
         private System.Windows.Forms.Timer timer;
         private static readonly string myConnstring = ConfigurationManager.ConnectionStrings["connString"].ConnectionString;
-        private static string buttonClicked ;
+        private static string buttonClicked;
         private Pesee p = new Pesee();
         private delegate void SetTextDeleg(string message);
+      
 
 
 
@@ -42,14 +43,15 @@ namespace scale
             tbl_inf_load();
 
             serialPort.PortName = "COM2";
-            
+
             serialPort.ReadTimeout = 500;
             serialPort.WriteTimeout = 500;
             try
             {
                 serialPort.Open();
-                
-            }catch(Exception ex)
+
+            }
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
                 serialPort.Close();
@@ -73,9 +75,9 @@ namespace scale
 
         private void InitializeFullscreenForm()
         {
-            
+
             //this.FormBorderStyle = FormBorderStyle.None; // Remove borders
-            this.WindowState = FormWindowState.Maximized; 
+            this.WindowState = FormWindowState.Maximized;
         }
 
         public void SetUser(User user)
@@ -94,7 +96,7 @@ namespace scale
 
             timer.Tick += Timer_Tick;
 
-            
+
             timer.Start();
         }
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -106,14 +108,14 @@ namespace scale
             }
         }
 
-        
+
         private void Timer_Tick(object sender, EventArgs e)
         {
-            
+
             hour.Text = DateTime.Now.ToString("H:mm:ss");
-             
+
         }
-        
+
         private void Clear()
         {
             camion.Text = string.Empty;
@@ -127,12 +129,22 @@ namespace scale
             frCode.Text = string.Empty;
             brutBox.Text = string.Empty;
             tareBox.Text = string.Empty;
+            nbreCaisse.Text = "0";
+            nbrPalettes.Text = "0";
+            PoidCaisse.Text = "0";
+            tareAvecCaisse.Checked = false;
+            tareSansCaisse.Checked = false;
+            pes_id.Text = string.Empty;
+            caisseNormale.Checked = false;
+            dechets.Text = "0";
+            nonUsinable.Text = "0";
+            Ecart.Text = "0";
 
         }
 
         private void acceuil_DropDown(object sender, EventArgs e)
         {
-            
+
             Acceuil acceuilVar = new Acceuil();
             acceuil.DataSource = acceuilVar.Select();
             acceuil.DisplayMember = "acc_name";
@@ -174,7 +186,7 @@ namespace scale
             fournisseurBox.DataSource = fr.Select();
             fournisseurBox.DisplayMember = "fr_name";
         }
-       
+
         void display()
         {
             if (typePesee.Text.Equals("ENTREE"))
@@ -220,41 +232,69 @@ namespace scale
             nonUsinable.Visible = false;
             groupBox1.Visible = false;
             tareAvecCaisse.Visible = false;
-            tareSansCaisse.Visible= false;
+            tareSansCaisse.Visible = false;
             label11.Visible = false;
             label22.Visible = false;
             pGlace.Visible = false;
             nbrPalettes.Visible = false;
-            
+
         }
 
-        
 
+        
         private void frCode_TextChanged(object sender, EventArgs e)
         {
-            string keyword = frCode.Text;
-            if (keyword == string.Empty)
-            {
-                fournisseurBox_DropDown(sender,e);
-            }
-            SqlConnection conn = new SqlConnection(myConnstring);
-            string query = "SELECT * FROM Fournisseur WHERE fr_code LIKE @frCode";
-            SqlCommand cmd = new SqlCommand(query, conn);
-            cmd.Parameters.AddWithValue("@frCode", "%" + keyword + "%");
-            SqlDataAdapter sda = new SqlDataAdapter(cmd);
-            DataTable dt = new DataTable();
-            sda.Fill(dt);
-            if (dt != null && dt.Rows.Count > 0)
-            {
-                fournisseurBox.DataSource = dt;
-                fournisseurBox.DisplayMember = "fr_name";
-                fournisseurBox.DroppedDown = false;
-            }
-            else
-            {
-                fournisseurBox.DroppedDown = false;
-            }
             
+                
+
+            string keyword = frCode.Text;
+
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                fournisseurBox_DropDown(sender, e);
+               
+            }
+
+            using (SqlConnection conn = new SqlConnection(myConnstring))
+            {
+                string query = "SELECT * FROM Fournisseur WHERE fr_code LIKE @frCode";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@frCode", "%" + keyword + "%");
+                SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+
+                try
+                {
+                    conn.Open();
+                    sda.Fill(dt);
+
+                    if (dt != null && dt.Rows.Count > 0)
+                    {
+                        
+                        fournisseurBox.DataSource = dt;
+                        fournisseurBox.DisplayMember = "fr_name";
+                        fournisseurBox.DroppedDown = true;
+                        fournisseurBox.Text = keyword; // Keep the current text
+                        fournisseurBox.SelectionStart = fournisseurBox.Text.Length; // Move cursor to the end
+                    }
+                    else
+                    {
+                        fournisseurBox.DroppedDown = false;
+                       
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Handle exceptions
+                    MessageBox.Show("An error occurred: " + ex.Message);
+                }
+                finally
+                {
+                   
+                    conn.Close();
+                }
+            }
+
 
         }
 
@@ -263,7 +303,7 @@ namespace scale
             string cat = categorie.Text;
             SqlConnection conn = new SqlConnection(myConnstring);
             DataTable dt = new DataTable();
-            string query ;
+            string query;
             if (cat == string.Empty)
             {
                 query = "SELECT * FROM Produit";
@@ -276,16 +316,16 @@ namespace scale
             {
                 query = "SELECT * FROM Produit WHERE cat_id=(SELECT cat_id FROM Categorie WHERE cat_name = @catName)";
                 SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@catName",  cat);
+                cmd.Parameters.AddWithValue("@catName", cat);
                 SqlDataAdapter sda = new SqlDataAdapter(cmd);
-                
+
                 sda.Fill(dt);
             }
 
             produit1.DataSource = dt;
             produit1.DisplayMember = "pr_name";
-            
-            
+
+
 
         }
 
@@ -304,7 +344,7 @@ namespace scale
         }
         public void lst_load()
         {
-            
+
             DataTable dt = p.Select();
             lstPesee.DataSource = dt;
             lstPesee.DisplayMember = "p_id";
@@ -322,7 +362,8 @@ namespace scale
                 adapter.Fill(dt);
 
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Console.Write(ex.Message);
             }
             finally
@@ -351,7 +392,7 @@ namespace scale
 
 
         }
-        private void search_TextChanged(object sender, EventArgs e)
+        private void search_TextUpdated(object sender, EventArgs e)
         {
             string keyword = search.Text;
             if (keyword == string.Empty)
@@ -362,7 +403,7 @@ namespace scale
             string query = "SELECT * FROM Pesee WHERE P_id like @PId";
             SqlCommand cmd = new SqlCommand(query, conn);
             cmd.Parameters.AddWithValue("@PId", "%" + keyword + "%");
-            
+
 
             SqlDataAdapter sda = new SqlDataAdapter(cmd);
             DataTable dt = new DataTable();
@@ -372,15 +413,61 @@ namespace scale
 
         private void annuler_Click(object sender, EventArgs e)
         {
-            
+
             Clear();
-            
+
 
         }
 
-        private void destination_TextChanged(object sender, EventArgs e)
+        private void destination_TextUpdated(object sender, EventArgs e)
         {
+            string keyword = destination.Text;
 
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                destination_DropDown(sender, e);
+
+            }
+
+            using (SqlConnection conn = new SqlConnection(myConnstring))
+            {
+                string query = "SELECT * FROM Destination WHERE dest_name LIKE @dest_name";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@dest_name", "%" + keyword + "%");
+                SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+
+                try
+                {
+                    conn.Open();
+                    sda.Fill(dt);
+
+                    if (dt != null && dt.Rows.Count > 0)
+                    {
+
+                        destination.DataSource = dt;
+                        destination.DisplayMember = "dest_name";
+                        destination.DroppedDown = true;
+                        destination.Text = keyword;
+                        destination.SelectionStart = destination.Text.Length;
+                    }
+                    else
+                    {
+                        destination.DroppedDown = false;
+
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                    MessageBox.Show("An error occurred: " + ex.Message);
+                }
+                finally
+                {
+
+                    conn.Close();
+                }
+            }
         }
 
         private void brut_Click(object sender, EventArgs e)
@@ -394,17 +481,17 @@ namespace scale
                 pes_id.Visible = true;
                 display();
             }
-            
+
             valider.Visible = true;
             buttonClicked = "brut";
-            
+
 
         }
         void setEnabled(bool enabled)
         {
-                camion.Enabled = enabled;
-                destination.Enabled = enabled;
-                provenance.Enabled = enabled;
+            camion.Enabled = enabled;
+            destination.Enabled = enabled;
+            provenance.Enabled = enabled;
             fournisseurBox.Enabled = enabled;
             categorie.Enabled = enabled;
             produit1.Enabled = enabled;
@@ -414,14 +501,14 @@ namespace scale
         {
             rptPesee.SetParameterValue("PeseeN", rp.PeseeN);
             rptPesee.SetParameterValue("typeOperation", rp.TypeOperation);
-            rptPesee.SetParameterValue("destination",rp.Destination);
-            rptPesee.SetParameterValue("provenance",rp.Provenance);
-            rptPesee.SetParameterValue("matricule",rp.Matricule);
-            rptPesee.SetParameterValue("produit",rp.Produit);
-            rptPesee.SetParameterValue("fournisseur",rp.Fournisseur);
-            rptPesee.SetParameterValue("debut",rp.Debut);
+            rptPesee.SetParameterValue("destination", rp.Destination);
+            rptPesee.SetParameterValue("provenance", rp.Provenance);
+            rptPesee.SetParameterValue("matricule", rp.Matricule);
+            rptPesee.SetParameterValue("produit", rp.Produit);
+            rptPesee.SetParameterValue("fournisseur", rp.Fournisseur);
+            rptPesee.SetParameterValue("debut", rp.Debut);
             rptPesee.SetParameterValue("fin", rp.Fin);
-            rptPesee.SetParameterValue("BRUT",rp.Brut);
+            rptPesee.SetParameterValue("BRUT", rp.Brut);
             rptPesee.SetParameterValue("TARE", rp.Tare);
             rptPesee.SetParameterValue("POIDCAIPAL", rp.PoidCaisPal);
             rptPesee.SetParameterValue("ECART", rp.Ecart);
@@ -433,12 +520,12 @@ namespace scale
             //rptPesee.SaveAs(rp.PeseeN);
             string savePath = $"C:\\Users\\Hp\\Desktop\\{rp.PeseeN}.doc";
             rptPesee.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.WordForWindows, savePath);
-            
-            rptPesee.PrintToPrinter(1,false,1,1);
+
+            //rptPesee.PrintToPrinter(1,false,1,1);
         }
         private void valider_Click(object sender, EventArgs e)
         {
-            if (buttonClicked.Equals("brut") )
+            if (buttonClicked.Equals("brut"))
             {
                 if (typePesee.Text.Equals("ENTREE"))
                 {
@@ -476,55 +563,96 @@ namespace scale
                     Produit pro1 = new Produit();
                     FournisseurCode for_code = new FournisseurCode();
                     Categorie cat = new Categorie();
-                    
+
 
                     //provenance
 
                     dt = prov.Select(prv);
                     if (dt.Rows.Count == 0)
                     {
-                        prov.Name = prv;
-                        prov.insert();
-                        dt = prov.Select(prv);
-                        data["prov_id"] = (int)dt.Rows[0]["prov_id"];
+                        if (prv != string.Empty)
+                        {
+                            prov.Name = prv;
+                            prov.insert();
+                            dt = prov.Select(prv);
+                            data["prov_id"] = (int)dt.Rows[0]["prov_id"];
+                        }
+                        else
+                        {
+                            MessageBox.Show("provenance is empty");
+                            return;
+                        }
                     }
                     else
                     {
                         data["prov_id"] = (int)dt.Rows[0]["prov_id"];
                     }
+
+
 
                     //camion
 
                     dt = cam.Select(matricule);
                     if (dt.Rows.Count == 0)
                     {
-                        cam.Matricule = matricule;
-                        cam.Insert();
+                        if (matricule != string.Empty)
+                        {
+                            cam.Matricule = matricule;
+                            cam.Insert();
+                        }
+                        else
+                        {
+                            MessageBox.Show("matricule is empty");
+                            return;
+                        }
                     }
 
+
+
                     // Fr_code
+
                     dt = for_code.Select(fr_code);
                     if (dt.Rows.Count == 0)
                     {
-                        for_code.Code = fr_code;
-                        for_code.Insert();
+                        if (fr_code != string.Empty)
+                        {
+                            for_code.Code = fr_code;
+                            for_code.Insert();
+                        }
+                        else
+                        {
+                            MessageBox.Show("Fournisseur code is empty");
+                            return;
+                        }
                     }
+
+
 
                     //fournisseur 
 
                     dt = fr.Select(fr_name);
                     if (dt.Rows.Count == 0)
                     {
-                        fr.Code = fr_code;
-                        fr.Name = fr_name;
-                        fr.Insert();
-                        dt = fr.Select(fr_name);
-                        data["fr_id"] = (int)dt.Rows[0]["fr_id"];
+                        if (fr_name != string.Empty && fr_code != string.Empty)
+                        {
+                            fr.Code = fr_code;
+                            fr.Name = fr_name;
+                            fr.Insert();
+                            dt = fr.Select(fr_name);
+                            data["fr_id"] = (int)dt.Rows[0]["fr_id"];
+                        }
+                        else
+                        {
+                            MessageBox.Show((fr_code == string.Empty) ? "Check Fournisseur Code!" : "Check Fournisseur Name!");
+                            return;
+                        }
                     }
                     else
                     {
                         data["fr_id"] = (int)dt.Rows[0]["fr_id"];
                     }
+
+
 
 
 
@@ -534,60 +662,96 @@ namespace scale
                     dt = acceuill.Select(acc);
                     if (dt.Rows.Count == 0)
                     {
-                        acceuill.Name = acc;
-                        acceuill.Insert();
-                        dt = acceuill.Select(acc);
-                        data["acc_id"] = (int)dt.Rows[0]["acc_id"];
+                        if (acc != string.Empty)
+                        {
+                            acceuill.Name = acc;
+                            acceuill.Insert();
+                            dt = acceuill.Select(acc);
+                            data["acc_id"] = (int)dt.Rows[0]["acc_id"];
+                        }
+                        else
+                        {
+                            MessageBox.Show("Acceuil is empty");
+                            return;
+                        }
                     }
                     else
                     {
                         data["acc_id"] = (int)dt.Rows[0]["acc_id"];
                     }
+
 
                     //destination
 
                     dt = desti.Select(dest);
                     if (dt.Rows.Count == 0)
                     {
-                        desti.Name = dest;
-                        desti.Insert();
-                        dt = desti.Select(dest);
-                        data["dest_id"] = (int)dt.Rows[0]["dest_id"];
+                        if (dest != string.Empty)
+                        {
+                            desti.Name = dest;
+                            desti.Insert();
+                            dt = desti.Select(dest);
+                            data["dest_id"] = (int)dt.Rows[0]["dest_id"];
+                        }
+
+                        else
+                        {
+                            MessageBox.Show("destination is empty");
+                            return;
+                        }
                     }
                     else
                     {
                         data["dest_id"] = (int)dt.Rows[0]["dest_id"];
                     }
+
 
                     //categorie
 
                     dt = cat.Select(cat_pr);
                     if (dt.Rows.Count == 0)
                     {
-                        cat.Name = cat_pr;
-                        cat.Insert();
-                        dt = cat.Select(cat_pr);
-                        data["cat_id"] = (int)dt.Rows[0]["cat_id"];
+                        if (cat_pr != string.Empty)
+                        {
+                            cat.Name = cat_pr;
+                            cat.Insert();
+                            dt = cat.Select(cat_pr);
+                            data["cat_id"] = (int)dt.Rows[0]["cat_id"];
+                        }
+                        else
+                        {
+                            MessageBox.Show("product categorie is empty");
+                            return;
+                        }
                     }
                     else
                     {
                         data["cat_id"] = (int)dt.Rows[0]["cat_id"];
                     }
+
+
 
                     //produit
-
-                    dt = pro1.Select(pr1);
-                    if (dt.Rows.Count == 0)
+                    if (pr1 != string.Empty)
                     {
-                        pro1.CatId = data["cat_id"];
-                        pro1.Name = pr1;
-                        pro1.Insert();
                         dt = pro1.Select(pr1);
-                        data["pr_id"] = (int)dt.Rows[0]["pr_id"];
+                        if (dt.Rows.Count == 0)
+                        {
+                            pro1.CatId = data["cat_id"];
+                            pro1.Name = pr1;
+                            pro1.Insert();
+                            dt = pro1.Select(pr1);
+                            data["pr_id"] = (int)dt.Rows[0]["pr_id"];
+                        }
+                        else
+                        {
+                            data["pr_id"] = (int)dt.Rows[0]["pr_id"];
+                        }
                     }
                     else
                     {
-                        data["pr_id"] = (int)dt.Rows[0]["pr_id"];
+                        MessageBox.Show("produit is empty");
+                        return;
                     }
 
 
@@ -595,7 +759,7 @@ namespace scale
 
 
                     //pesee
-                    
+
                     dt = p.Select_last();
                     string[] mp = null;
                     if (dt.Rows.Count > 0)
@@ -641,7 +805,7 @@ namespace scale
                     p.NonUsinable = 0;
                     p.TareAvecCaisse = tareAvecCaisse.Checked;
                     p.TareSansCaisse = tareSansCaisse.Checked;
-                    p.Net = (p.Brut - (p.Tare +p.Dechets+ p.PoidGlace + p.PoidCaisse + p.Ecart+(p.NbrPalette * 26)));
+                    p.Net = (p.Brut - (p.Tare + p.Dechets + p.PoidGlace + p.PoidCaisse + p.Ecart + (p.NbrPalette * 26)));
                     p.Insert();
                     int poid = (p.PoidCaisse * p.NbrCaisse) + (p.NbrPalette * 26);
 
@@ -655,7 +819,7 @@ namespace scale
                         Matricule = p.Matricule,
                         Produit = produit1.Text.ToUpper(),
                         Fournisseur = fr_name.ToUpper(),
-                        Debut = p.DDebut + " "+p.HDebut,
+                        Debut = p.DDebut + " " + p.HDebut,
                         Fin = p.DFin + " " + p.HFin,
                         Brut = p.Brut.ToString(),
                         Tare = p.Tare.ToString(),
@@ -664,14 +828,14 @@ namespace scale
                         NonUsinable = p.NonUsinable.ToString(),
                         Dechets = p.Dechets.ToString(),
                         Net = p.Net.ToString(),
-                        TypeTare = (tareAvecCaisse.Checked)? " ":" "
+                        TypeTare = (tareAvecCaisse.Checked) ? " " : " "
                     };
                     Print(rp);
                     Clear();
                 }
                 else
                 {
-                    
+
                     int bru = int.Parse(brutBox.Text.Trim());
                     int pglace = int.Parse(pGlace.Text.Trim());
                     int pcaisse = int.Parse(PoidCaisse.Text.Trim());
@@ -682,7 +846,7 @@ namespace scale
                     int nPalettes = int.Parse(nbrPalettes.Text.Trim());
                     string prov = provenance.Text;
                     string fr_name = fournisseurBox.Text;
-                   
+
                     DataTable dt = p.Select(pes_id.Text);
                     p.Id = pes_id.Text;
                     int tare = (int)dt.Rows[0]["tare"];
@@ -704,8 +868,8 @@ namespace scale
                     p.NonUsinable = nusinable;
                     p.TareAvecCaisse = tareAvecCaisse.Checked;
                     p.TareSansCaisse = tareSansCaisse.Checked;
-                    p.Net = (p.Brut - (p.Tare + p.Dechets + p.PoidGlace + (p.PoidCaisse*p.PoidCaisse) + p.Ecart + (p.NbrPalette * 26)));
-                    
+                    p.Net = (p.Brut - (p.Tare + p.Dechets + p.PoidGlace + (p.PoidCaisse * p.PoidCaisse) + p.Ecart + (p.NbrPalette * 26)));
+
                     p.Update("tare");
                     int poid = (p.PoidCaisse * p.NbrCaisse) + (p.NbrPalette * 26);
                     ReportDetail rp = new ReportDetail()
@@ -781,48 +945,89 @@ namespace scale
                     dt = prov.Select(prv);
                     if (dt.Rows.Count == 0)
                     {
-                        prov.Name = prv;
-                        prov.insert();
-                        dt = prov.Select(prv);
-                        data["prov_id"] = (int)dt.Rows[0]["prov_id"];
+                        if (prv != string.Empty)
+                        {
+                            prov.Name = prv;
+                            prov.insert();
+                            dt = prov.Select(prv);
+                            data["prov_id"] = (int)dt.Rows[0]["prov_id"];
+                        }
+                        else
+                        {
+                            MessageBox.Show("provenance is empty");
+                            return;
+                        }
                     }
                     else
                     {
                         data["prov_id"] = (int)dt.Rows[0]["prov_id"];
                     }
+
+
 
                     //camion
 
                     dt = cam.Select(matricule);
                     if (dt.Rows.Count == 0)
                     {
-                        cam.Matricule = matricule;
-                        cam.Insert();
+                        if (matricule != string.Empty)
+                        {
+                            cam.Matricule = matricule;
+                            cam.Insert();
+                        }
+                        else
+                        {
+                            MessageBox.Show("matricule is empty");
+                            return;
+                        }
                     }
 
+
+
                     // Fr_code
+
                     dt = for_code.Select(fr_code);
                     if (dt.Rows.Count == 0)
                     {
-                        for_code.Code = fr_code;
-                        for_code.Insert();
+                        if (fr_code != string.Empty)
+                        {
+                            for_code.Code = fr_code;
+                            for_code.Insert();
+                        }
+                        else
+                        {
+                            MessageBox.Show("Fournisseur code is empty");
+                            return;
+                        }
                     }
+
+
 
                     //fournisseur 
 
                     dt = fr.Select(fr_name);
                     if (dt.Rows.Count == 0)
                     {
-                        fr.Code = fr_code;
-                        fr.Name = fr_name;
-                        fr.Insert();
-                        dt = fr.Select(fr_name);
-                        data["fr_id"] = (int)dt.Rows[0]["fr_id"];
+                        if (fr_name != string.Empty && fr_code != string.Empty)
+                        {
+                            fr.Code = fr_code;
+                            fr.Name = fr_name;
+                            fr.Insert();
+                            dt = fr.Select(fr_name);
+                            data["fr_id"] = (int)dt.Rows[0]["fr_id"];
+                        }
+                        else
+                        {
+                            MessageBox.Show((fr_code == string.Empty) ? "Check Fournisseur Code!" : "Check Fournisseur Name!");
+                            return;
+                        }
                     }
                     else
                     {
                         data["fr_id"] = (int)dt.Rows[0]["fr_id"];
                     }
+
+
 
 
 
@@ -832,60 +1037,96 @@ namespace scale
                     dt = acceuill.Select(acc);
                     if (dt.Rows.Count == 0)
                     {
-                        acceuill.Name = acc;
-                        acceuill.Insert();
-                        dt = acceuill.Select(acc);
-                        data["acc_id"] = (int)dt.Rows[0]["acc_id"];
+                        if (acc != string.Empty)
+                        {
+                            acceuill.Name = acc;
+                            acceuill.Insert();
+                            dt = acceuill.Select(acc);
+                            data["acc_id"] = (int)dt.Rows[0]["acc_id"];
+                        }
+                        else
+                        {
+                            MessageBox.Show("Acceuil is empty");
+                            return;
+                        }
                     }
                     else
                     {
                         data["acc_id"] = (int)dt.Rows[0]["acc_id"];
                     }
+
 
                     //destination
 
                     dt = desti.Select(dest);
                     if (dt.Rows.Count == 0)
                     {
-                        desti.Name = dest;
-                        desti.Insert();
-                        dt = desti.Select(dest);
-                        data["dest_id"] = (int)dt.Rows[0]["dest_id"];
+                        if (dest != string.Empty)
+                        {
+                            desti.Name = dest;
+                            desti.Insert();
+                            dt = desti.Select(dest);
+                            data["dest_id"] = (int)dt.Rows[0]["dest_id"];
+                        }
+
+                        else
+                        {
+                            MessageBox.Show("destination is empty");
+                            return;
+                        }
                     }
                     else
                     {
                         data["dest_id"] = (int)dt.Rows[0]["dest_id"];
                     }
+
 
                     //categorie
 
                     dt = cat.Select(cat_pr);
                     if (dt.Rows.Count == 0)
                     {
-                        cat.Name = cat_pr;
-                        cat.Insert();
-                        dt = cat.Select(cat_pr);
-                        data["cat_id"] = (int)dt.Rows[0]["cat_id"];
+                        if (cat_pr != string.Empty)
+                        {
+                            cat.Name = cat_pr;
+                            cat.Insert();
+                            dt = cat.Select(cat_pr);
+                            data["cat_id"] = (int)dt.Rows[0]["cat_id"];
+                        }
+                        else
+                        {
+                            MessageBox.Show("product categorie is empty");
+                            return;
+                        }
                     }
                     else
                     {
                         data["cat_id"] = (int)dt.Rows[0]["cat_id"];
                     }
+
+
 
                     //produit
-
-                    dt = pro1.Select(pr1);
-                    if (dt.Rows.Count == 0)
+                    if (pr1 != string.Empty)
                     {
-                        pro1.CatId = data["cat_id"];
-                        pro1.Name = pr1;
-                        pro1.Insert();
                         dt = pro1.Select(pr1);
-                        data["pr_id"] = (int)dt.Rows[0]["pr_id"];
+                        if (dt.Rows.Count == 0)
+                        {
+                            pro1.CatId = data["cat_id"];
+                            pro1.Name = pr1;
+                            pro1.Insert();
+                            dt = pro1.Select(pr1);
+                            data["pr_id"] = (int)dt.Rows[0]["pr_id"];
+                        }
+                        else
+                        {
+                            data["pr_id"] = (int)dt.Rows[0]["pr_id"];
+                        }
                     }
                     else
                     {
-                        data["pr_id"] = (int)dt.Rows[0]["pr_id"];
+                        MessageBox.Show("produit is empty");
+                        return;
                     }
 
 
@@ -893,7 +1134,7 @@ namespace scale
 
 
                     //pesee
-                    
+
                     dt = p.Select_last();
                     string[] mp = null;
                     if (dt.Rows.Count > 0)
@@ -936,10 +1177,10 @@ namespace scale
                     p.NonUsinable = 0;
                     p.TareAvecCaisse = tareAvecCaisse.Checked;
                     p.TareSansCaisse = tareSansCaisse.Checked;
-                    p.Net = (p.Brut != 0)?(p.Brut - (p.Tare + p.PoidGlace + (p.PoidCaisse*p.NbrCaisse) + p.Ecart + (p.NbrPalette * 26))):0;
+                    p.Net = (p.Brut != 0) ? (p.Brut - (p.Tare + p.PoidGlace + (p.PoidCaisse * p.NbrCaisse) + p.Ecart + (p.NbrPalette * 26))) : 0;
                     p.Insert();
                     int poid = (p.PoidCaisse * p.NbrCaisse) + (p.NbrPalette * 26);
-                  
+
                     ReportDetail rp = new ReportDetail()
                     {
                         PeseeN = p.Id,
@@ -967,8 +1208,8 @@ namespace scale
                 }
                 else
                 {
-                    
-                    
+
+
                     int tar = int.Parse(tareBox.Text.Trim());
                     int pglace = int.Parse(pGlace.Text.Trim());
                     int pcaisse = int.Parse(PoidCaisse.Text.Trim());
@@ -979,7 +1220,7 @@ namespace scale
                     int nPalettes = int.Parse(nbrPalettes.Text.Trim());
                     string prv = provenance.Text;
                     string fr_name = fournisseurBox.Text;
-                    
+
 
                     DataTable dt = p.Select(pes_id.Text);
                     p.Id = pes_id.Text;
@@ -1002,8 +1243,8 @@ namespace scale
                     p.NonUsinable = nusinable;
                     p.TareAvecCaisse = tareAvecCaisse.Checked;
                     p.TareSansCaisse = tareSansCaisse.Checked;
-                    p.Net = (p.Brut - (p.Tare + p.Dechets + p.PoidGlace + (p.PoidCaisse*p.NbrCaisse) + p.Ecart + (p.NbrPalette * 26)));
-                   
+                    p.Net = (p.Brut - (p.Tare + p.Dechets + p.PoidGlace + (p.PoidCaisse * p.NbrCaisse) + p.Ecart + (p.NbrPalette * 26)));
+
                     p.Update("brut");
 
                     int poid = (p.PoidCaisse * p.NbrCaisse) + (p.NbrPalette * 26);
@@ -1032,7 +1273,8 @@ namespace scale
                         };
 
                         Print(rp);
-                    }catch(Exception ex)
+                    }
+                    catch (Exception ex)
                     {
                         MessageBox.Show(ex.Message);
                     }
@@ -1043,11 +1285,11 @@ namespace scale
             Clear();
             lst_load();
             tbl_inf_load();
-            
+
         }
 
-      
-       
+
+
 
         private void pes_id_DropDown(object sender, EventArgs e)
         {
@@ -1055,7 +1297,7 @@ namespace scale
             DataTable dt = new DataTable();
             try
             {
-                string query = "SELECT TOP 10 * FROM Pesee ORDER BY hdebut DESC";
+                string query = "SELECT TOP 10 * FROM Pesee ORDER BY   CAST(    SUBSTRING( p_id,     CHARINDEX('-', p_id) + 1,     LEN(p_id) - CHARINDEX('-', p_id)   ) AS INT  ) DESC;";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 SqlDataAdapter adapter = new SqlDataAdapter(cmd);
                 conn.Open();
@@ -1079,7 +1321,7 @@ namespace scale
 
 
 
-        
+
         private void pes_id_SelectedValueChanged(object sender, EventArgs e)
         {
             SqlConnection conn = new SqlConnection(myConnstring);
@@ -1157,7 +1399,7 @@ namespace scale
                         destination.Text = dest_name;
                     }
 
-                    
+
                     setEnabled(false);
                     camion.Text = mat;
                 }
@@ -1169,7 +1411,7 @@ namespace scale
             finally
             {
                 conn.Close();
-                
+
             }
         }
 
@@ -1180,7 +1422,7 @@ namespace scale
                 MessageBox.Show("Please select a row to delete.");
                 return;
             }
-            
+
             int index = tbl_inf.CurrentCell.RowIndex;
             DataGridViewRow selectedRow = tbl_inf.Rows[index];
             p.Id = selectedRow.Cells["NPesee"].Value.ToString();
@@ -1214,7 +1456,7 @@ namespace scale
                     MessageBox.Show("No User Found.");
                 }
             }
-            
+
         }
 
         private void synthese_Click(object sender, EventArgs e)
@@ -1240,7 +1482,7 @@ namespace scale
                 DataTable dt = new DataTable();
                 try
                 {
-                   
+
                     string query = "SELECT p.*,d.dest_name,f.fr_name,pr.pr_name,prv.prov_name,usr.username FROM Pesee p JOIN Destination AS d ON d.dest_id=p.dest_id JOIN Fournisseur AS f ON f.fr_id=p.fr_id JOIN Produit AS pr ON pr.pr_id=p.pr_id JOIN Provenance AS prv ON prv.prov_id=p.prov_id JOIN Users AS usr ON usr.id=p.id_user WHERE p.p_id =@p_id";
                     SqlCommand cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@p_id", p_id);
@@ -1249,29 +1491,29 @@ namespace scale
 
 
                     int caipoi = ((int)dt.Rows[0]["nbr_caisse"]) * ((int)dt.Rows[0]["poid_caisse"]);
-                    int poid = caipoi + ((int)dt.Rows[0]["nbr_palettes"])*26;
-                ReportDetail rp = new ReportDetail()
-                {
-                    PeseeN = dt.Rows[0]["p_id"].ToString(),
-                    Operateur = dt.Rows[0]["username"].ToString(),
-                    TypeOperation = dt.Rows[0]["type_pesee"].ToString(),
-                    Destination = dt.Rows[0]["dest_name"].ToString(),
-                    Provenance = dt.Rows[0]["prov_name"].ToString(),
-                    Produit = dt.Rows[0]["pr_name"].ToString(),
-                    Matricule = dt.Rows[0]["matricule"].ToString(),
-                    Fournisseur = dt.Rows[0]["fr_name"].ToString(),
-                    Brut = dt.Rows[0]["brut"].ToString(),
-                    Tare = dt.Rows[0]["tare"].ToString(),
-                    Ecart = dt.Rows[0]["ecart"].ToString(),
-                    NonUsinable = dt.Rows[0]["non_usinable"].ToString(),
-                    Dechets = dt.Rows[0]["dechets"].ToString(),
-                    Debut = dt.Rows[0]["ddebut"].ToString() +" "+ dt.Rows[0]["hdebut"].ToString(),
-                    Fin = dt.Rows[0]["dfin"].ToString() + " " + dt.Rows[0]["hfin"].ToString(),
-                    TypeTare = ((bool)dt.Rows[0]["tare_avec_caisse"])? "Tare Avec Caisse": "Tare Sans Caisse",
-                    PoidCaisPal = poid.ToString(),
-                    Net = dt.Rows[0]["net"].ToString(),
-                };
-                Print(rp);
+                    int poid = caipoi + ((int)dt.Rows[0]["nbr_palettes"]) * 26;
+                    ReportDetail rp = new ReportDetail()
+                    {
+                        PeseeN = dt.Rows[0]["p_id"].ToString(),
+                        Operateur = dt.Rows[0]["username"].ToString(),
+                        TypeOperation = dt.Rows[0]["type_pesee"].ToString(),
+                        Destination = dt.Rows[0]["dest_name"].ToString(),
+                        Provenance = dt.Rows[0]["prov_name"].ToString(),
+                        Produit = dt.Rows[0]["pr_name"].ToString(),
+                        Matricule = dt.Rows[0]["matricule"].ToString(),
+                        Fournisseur = dt.Rows[0]["fr_name"].ToString(),
+                        Brut = dt.Rows[0]["brut"].ToString(),
+                        Tare = dt.Rows[0]["tare"].ToString(),
+                        Ecart = dt.Rows[0]["ecart"].ToString(),
+                        NonUsinable = dt.Rows[0]["non_usinable"].ToString(),
+                        Dechets = dt.Rows[0]["dechets"].ToString(),
+                        Debut = dt.Rows[0]["ddebut"].ToString() + " " + dt.Rows[0]["hdebut"].ToString(),
+                        Fin = dt.Rows[0]["dfin"].ToString() + " " + dt.Rows[0]["hfin"].ToString(),
+                        TypeTare = ((bool)dt.Rows[0]["tare_avec_caisse"]) ? "Tare Avec Caisse" : ((bool)dt.Rows[0]["tare_sans_caisse"]) ? "Tare Sans Caisse" : "",
+                        PoidCaisPal = poid.ToString(),
+                        Net = dt.Rows[0]["net"].ToString(),
+                    };
+                    Print(rp);
 
                 }
                 catch (Exception ex)
@@ -1289,9 +1531,292 @@ namespace scale
                 Console.WriteLine(ex.Message);
                 MessageBox.Show("No Item Selected");
             }
+
             
-            //
         }
+
+        
+
+        private void pes_id_TextUpdated(object sender, EventArgs e)
+        {
+            
+
+            string keyword = pes_id.Text;
+
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                pes_id_DropDown(sender, e);
+           
+            }
+
+            using (SqlConnection conn = new SqlConnection(myConnstring))
+            {
+                string query = "SELECT * FROM Pesee WHERE p_id LIKE @p_id";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@p_id", "%" + keyword + "%");
+                SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+
+                try
+                {
+                    conn.Open();
+                    sda.Fill(dt);
+
+                    if (dt != null && dt.Rows.Count > 0)
+                    {
+                        pes_id.DataSource = dt;
+                        pes_id.DisplayMember = "p_id";
+                        pes_id.DroppedDown = true;
+                        pes_id.Text = keyword;
+                        pes_id.SelectionStart = pes_id.Text.Length;
+                    }
+                    else
+                    {
+                        pes_id.DroppedDown = false;
+                       
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("An error occurred: " + ex.Message);
+                }
+                finally
+                {
+                  
+                    conn.Close();
+                }
+            }
+        }
+
+
+        
+
+        private void camion_TextUpdated(object sender, EventArgs e)
+        {
+            
+
+            string keyword = camion.Text;
+
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                camion_DropDown(sender, e);
+             
+            }
+
+            using (SqlConnection conn = new SqlConnection(myConnstring))
+            {
+                string query = "SELECT * FROM Camion WHERE matricule LIKE @matricule";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@matricule", "%" + keyword + "%");
+                SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+
+                try
+                {
+                    conn.Open();
+                    sda.Fill(dt);
+
+                    if (dt != null && dt.Rows.Count > 0)
+                    {
+                       
+                        camion.DataSource = dt;
+                        camion.DisplayMember = "matricule";
+                        camion.DroppedDown = true;
+                        camion.Text = keyword;
+                        camion.SelectionStart = camion.Text.Length;
+                    }
+                    else
+                    {
+                        camion.DroppedDown = false;
+                      
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("An error occurred: cam " + ex.Message);
+                }
+                finally
+                {
+                   
+                    conn.Close();
+                }
+            }
+        }
+
+
+
+        private void provenance_TextUpdated(object sender, EventArgs e)
+        {
+            
+
+            string keyword = provenance.Text;
+
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                provenance_DropDown(sender, e);
+               
+            }
+
+            using (SqlConnection conn = new SqlConnection(myConnstring))
+            {
+                string query = "SELECT * FROM Provenance WHERE prov_name LIKE @prov_name";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@prov_name", "%" + keyword + "%");
+                SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+
+                try
+                {
+                    conn.Open();
+                    sda.Fill(dt);
+
+                    if (dt != null && dt.Rows.Count > 0)
+                    {
+                       
+                        provenance.DataSource = dt;
+                        provenance.DisplayMember = "prov_name";
+                        provenance.DroppedDown = true;
+                        provenance.Text = keyword;
+                        provenance.SelectionStart = provenance.Text.Length;
+                    }
+                    else
+                    {
+                        provenance.DroppedDown = false;
+                       
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("An error occurred: " + ex.Message);
+                }
+                finally
+                {
+                   
+                    conn.Close();
+                }
+            }
+        }
+
+
+       
+
+        private void fournisseurBox_TextUpdated(object sender, EventArgs e)
+        {
+            
+
+            string keyword = fournisseurBox.Text;
+
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                fournisseurBox_DropDown(sender, e);
+               
+            }
+
+            using (SqlConnection conn = new SqlConnection(myConnstring))
+            {
+                string query = "SELECT * FROM Fournisseur WHERE fr_name LIKE @fr_name";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@fr_name", "%" + keyword + "%");
+                SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+
+                try
+                {
+                    conn.Open();
+                    sda.Fill(dt);
+
+                    if (dt != null && dt.Rows.Count > 0)
+                    {
+                        
+                        fournisseurBox.DataSource = dt;
+                        fournisseurBox.DisplayMember = "fr_name";
+                        fournisseurBox.DroppedDown = true;
+                        fournisseurBox.Text = keyword;
+                        fournisseurBox.SelectionStart = fournisseurBox.Text.Length;
+                    }
+                    else
+                    {
+                        fournisseurBox.DroppedDown = false;
+               
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("An error occurred: " + ex.Message);
+                }
+                finally
+                {
+                   
+                    conn.Close();
+                }
+            }
+        }
+
+
+        private void produit1_TextUpdated(object sender, EventArgs e)
+        {
+            string cat = categorie.Text;
+
+            string keyword = produit1.Text;
+
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                produit1_DropDown(sender, e);
+               
+            }
+            string query;
+
+            using (SqlConnection conn = new SqlConnection(myConnstring))
+            {
+                if (cat == string.Empty)
+                {
+                    query = "SELECT * FROM Produit WHERE pr_name LIKE @pr_name";
+                }
+                else
+                {
+                    query = $"SELECT * FROM Produit WHERE pr_name LIKE @pr_name AND cat_id=(SELECT cat_id FROM Categorie WHERE cat_name=@cat_name)";
+                }
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@pr_name", "%" + keyword + "%");
+                if(cat != string.Empty)  cmd.Parameters.AddWithValue("@cat_name", cat) ;
+                SqlDataAdapter sda = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+
+                try
+                {
+                    conn.Open();
+                    sda.Fill(dt);
+
+                    if (dt != null && dt.Rows.Count > 0)
+                    {
+                       
+                        produit1.DataSource = dt;
+                        produit1.DisplayMember = "pr_name";
+                        produit1.DroppedDown = true;
+                        produit1.Text = keyword; // Keep the current text
+                        produit1.SelectionStart = produit1.Text.Length; // Move cursor to the end
+                    }
+                    else
+                    {
+                        produit1.DroppedDown = false;
+                      
+                    }
+                }
+                catch (Exception ex)
+                {
+                    
+                    MessageBox.Show("An error occurred: " + ex.Message);
+                }
+                finally
+                {
+                    
+                    conn.Close();
+                }
+            }
+        }
+
+        
     }
-    }
+}
+   
 

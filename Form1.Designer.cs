@@ -296,7 +296,7 @@
             this.search.Name = "search";
             this.search.Size = new System.Drawing.Size(157, 35);
             this.search.TabIndex = 0;
-            this.search.TextChanged += new System.EventHandler(this.search_TextChanged);
+            this.search.TextChanged += new System.EventHandler(this.search_TextUpdated);
             // 
             // panel4
             // 
@@ -498,6 +498,7 @@
             this.pes_id.TabIndex = 49;
             this.pes_id.Visible = false;
             this.pes_id.DropDown += new System.EventHandler(this.pes_id_DropDown);
+            this.pes_id.TextUpdate += new System.EventHandler(this.pes_id_TextUpdated);
             this.pes_id.SelectedValueChanged += new System.EventHandler(this.pes_id_SelectedValueChanged);
             // 
             // label10
@@ -709,6 +710,7 @@
             this.produit1.Size = new System.Drawing.Size(214, 33);
             this.produit1.TabIndex = 12;
             this.produit1.DropDown += new System.EventHandler(this.produit1_DropDown);
+            this.produit1.TextUpdate += new System.EventHandler(this.produit1_TextUpdated);
             // 
             // label9
             // 
@@ -731,6 +733,7 @@
             this.fournisseurBox.Size = new System.Drawing.Size(214, 33);
             this.fournisseurBox.TabIndex = 10;
             this.fournisseurBox.DropDown += new System.EventHandler(this.fournisseurBox_DropDown);
+            this.fournisseurBox.TextUpdate += new System.EventHandler(this.fournisseurBox_TextUpdated);
             // 
             // label8
             // 
@@ -753,6 +756,7 @@
             this.provenance.Size = new System.Drawing.Size(214, 33);
             this.provenance.TabIndex = 8;
             this.provenance.DropDown += new System.EventHandler(this.provenance_DropDown);
+            this.provenance.TextUpdate += new System.EventHandler(this.provenance_TextUpdated);
             // 
             // label7
             // 
@@ -775,7 +779,8 @@
             this.destination.Size = new System.Drawing.Size(214, 33);
             this.destination.TabIndex = 6;
             this.destination.DropDown += new System.EventHandler(this.destination_DropDown);
-            this.destination.TextChanged += new System.EventHandler(this.destination_TextChanged);
+        
+            this.destination.TextUpdate += new System.EventHandler(this.destination_TextUpdated);
             // 
             // label6
             // 
@@ -820,6 +825,7 @@
             this.camion.Size = new System.Drawing.Size(214, 33);
             this.camion.TabIndex = 0;
             this.camion.DropDown += new System.EventHandler(this.camion_DropDown);
+            this.camion.TextUpdate += new System.EventHandler(this.camion_TextUpdated);
             // 
             // panel7
             // 
