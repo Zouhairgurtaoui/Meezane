@@ -1,2 +1,2 @@
 # Meezane
-Application de pesee
+Application de pesage
