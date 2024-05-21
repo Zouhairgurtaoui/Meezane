@@ -22,5 +22,16 @@ namespace scale.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.SpecialSettingAttribute(global::System.Configuration.SpecialSetting.ConnectionString)]
+        [global::System.Configuration.DefaultSettingValueAttribute("Data Source=DESKTOP-18DA7BO\\SQLEXPRESS;Initial Catalog=cmdoha;Integrated Security" +
+            "=True")]
+        public string connString {
+            get {
+                return ((string)(this["connString"]));
+            }
+        }
     }
 }

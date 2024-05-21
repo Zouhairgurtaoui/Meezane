@@ -15,11 +15,12 @@ namespace scale.models
         public int Id { get; set; }
         public string Name { get; set; }
 
-        static string myConnstring = ConfigurationManager.ConnectionStrings["connString"].ConnectionString;
+        //static string myConnstring = ConfigurationManager.ConnectionStrings["connString"].ConnectionString;
 
         public DataTable Select()
         {
-            SqlConnection conn = new SqlConnection(myConnstring);
+            //SqlConnection conn = new SqlConnection(myConnstring);
+            SqlConnection conn = DbConnection.getConnection();
             DataTable dt = new DataTable();
             try
             {
@@ -41,7 +42,8 @@ namespace scale.models
         }
         public DataTable Select(string cat_name)
         {
-            SqlConnection conn = new SqlConnection(myConnstring);
+            //SqlConnection conn = new SqlConnection(myConnstring);
+            SqlConnection conn = DbConnection.getConnection();
             DataTable dt = new DataTable();
             try
             {
@@ -65,7 +67,8 @@ namespace scale.models
         public bool Insert()
         {
             bool isSuccess = false;
-            SqlConnection conn = new SqlConnection(myConnstring);
+            //SqlConnection conn = new SqlConnection(myConnstring);
+            SqlConnection conn = DbConnection.getConnection();
             try
             {
                 string sql = "INSERT INTO Categorie(cat_name) VALUES(@cat_name)";

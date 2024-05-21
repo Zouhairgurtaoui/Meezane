@@ -59,5 +59,14 @@ namespace scale.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Data Source=DESKTOP-18DA7BO\SQLEXPRESS;Initial Catalog=cmdoha;Integrated Security=True.
+        /// </summary>
+        internal static string connString {
+            get {
+                return ResourceManager.GetString("connString", resourceCulture);
+            }
+        }
     }
 }

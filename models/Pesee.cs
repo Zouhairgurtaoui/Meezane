@@ -51,11 +51,12 @@ namespace scale.models
         public bool TareAvecCaisse { get; set; }
         public bool TareSansCaisse { get; set; }
 
-        static string myConnstring = ConfigurationManager.ConnectionStrings["connString"].ConnectionString;
+        //static string myConnstring = ConfigurationManager.ConnectionStrings["connString"].ConnectionString;
 
         public DataTable Select()
         {
-            SqlConnection conn = new SqlConnection(myConnstring);
+            //SqlConnection conn = new SqlConnection(myConnstring);
+            SqlConnection conn = DbConnection.getConnection();
             DataTable dt = new DataTable();
             try
             {
@@ -77,7 +78,8 @@ namespace scale.models
         }
         public DataTable Select(string p_id)
         {
-            SqlConnection conn = new SqlConnection(myConnstring);
+            //SqlConnection conn = new SqlConnection(myConnstring);
+            SqlConnection conn = DbConnection.getConnection();
             DataTable dt = new DataTable();
             try
             {
@@ -101,7 +103,8 @@ namespace scale.models
         }
         public DataTable Select_last()
         {
-            SqlConnection conn = new SqlConnection(myConnstring);
+            //SqlConnection conn = new SqlConnection(myConnstring);
+            SqlConnection conn = DbConnection.getConnection();
             DataTable dt = new DataTable();
             try
             {
@@ -124,7 +127,8 @@ namespace scale.models
         public bool Insert()
         {
             bool isSuccess = false;
-            SqlConnection conn = new SqlConnection(myConnstring);
+            //SqlConnection conn = new SqlConnection(myConnstring);
+            SqlConnection conn = DbConnection.getConnection();
             try
             {
                string query = "INSERT INTO Pesee(p_id,type_pesee,fr_id,pr_id,matricule,acc_id,prov_id,dest_id,brut,ddebut,hdebut,is_finished,tare,dechets,dfin,hfin,net,nbr_caisse,caisses_normales,plateaux,poid_caisse,nbr_palettes,poid_glace,ecart,non_usinable,id_user,tare_avec_caisse,tare_sans_caisse) VALUES(@p_id,@type_pesee,@fr_id,@pr_id,@matricule,@acc_id,@prov_id,@dest_id,@brut,@ddebut,@hdebut,@is_finished,@tare,@dechets,@dfin,@hfin,@net,@nbr_caisse,@caisses_normales,@plateaux,@poid_caisse,@nbr_palettes,@poid_glace,@ecart,@non_usinable,@id_user,@tare_avec_caisse,@tare_sans_caisse)";
@@ -174,7 +178,8 @@ namespace scale.models
         public bool Update(string type)
         {
             bool isSuccess = false;
-            SqlConnection conn = new SqlConnection(myConnstring);
+            //SqlConnection conn = new SqlConnection(myConnstring);
+            SqlConnection conn = DbConnection.getConnection();
             if (type.Equals("brut"))
             {
 
@@ -252,7 +257,8 @@ namespace scale.models
         public bool Delete()
         {
             bool isSuccess = false;
-            SqlConnection conn = new SqlConnection(myConnstring);
+            //SqlConnection conn = new SqlConnection(myConnstring);
+            SqlConnection conn = DbConnection.getConnection();
 
             try
             {

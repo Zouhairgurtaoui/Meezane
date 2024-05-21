@@ -18,11 +18,12 @@ namespace scale.models
         public string Code { get; set; }
         
 
-        static string myConnstring = ConfigurationManager.ConnectionStrings["connString"].ConnectionString;
+        //static string myConnstring = ConfigurationManager.ConnectionStrings["connString"].ConnectionString;
 
         public DataTable Select()
         {
-            SqlConnection conn = new SqlConnection(myConnstring);
+            //SqlConnection conn = new SqlConnection(myConnstring);
+            SqlConnection conn = DbConnection.getConnection();
             DataTable dt = new DataTable();
 
             try
@@ -46,7 +47,8 @@ namespace scale.models
         }
         public DataTable Select(string fr_name)
         {
-            SqlConnection conn = new SqlConnection(myConnstring);
+            //SqlConnection conn = new SqlConnection(myConnstring);
+            SqlConnection conn = DbConnection.getConnection();
             DataTable dt = new DataTable();
             string query;
             SqlCommand cmd;
@@ -74,7 +76,8 @@ namespace scale.models
         public bool Insert()
         {
             bool isSuccess = false;
-            SqlConnection conn = new SqlConnection(myConnstring);
+            //SqlConnection conn = new SqlConnection(myConnstring);
+            SqlConnection conn = DbConnection.getConnection();
             try
             {
                 string sql = "INSERT INTO Fournisseur(fr_name,fr_code) VALUES(@fr_name,@fr_code)";

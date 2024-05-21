@@ -16,6 +16,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web.Services.Description;
 using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
@@ -24,11 +25,13 @@ namespace scale
     public partial class MainForm : Form
     {
         private System.Windows.Forms.Timer timer;
-        private static readonly string myConnstring = ConfigurationManager.ConnectionStrings["connString"].ConnectionString;
+        //private static readonly string myConnstring = ConfigurationManager.ConnectionStrings["connString"].ConnectionString;
         private static string buttonClicked;
         private Pesee p = new Pesee();
         private delegate void SetTextDeleg(string message);
-      
+        SerialPort serial;
+
+        private StringBuilder dataBuffer = new StringBuilder();
 
 
 
@@ -41,11 +44,15 @@ namespace scale
             InitializeTimer();
             lst_load();
             tbl_inf_load();
+            
 
-            serialPort.PortName = "COM2";
+            serialPort.PortName = "COM4";
+            serialPort.RtsEnable = true;
 
-            serialPort.ReadTimeout = 500;
-            serialPort.WriteTimeout = 500;
+            serialPort.ReceivedBytesThreshold = 1;
+            serialPort.DtrEnable = true;
+           
+            serialPort.Handshake = Handshake.RequestToSend;
             try
             {
                 serialPort.Open();
@@ -57,21 +64,101 @@ namespace scale
                 serialPort.Close();
 
                 serialPort.Dispose();
-
             }
 
 
         }
-        private void si_DataReceived(string data) { pesee.Text = data.Trim(); }
-
-
-        private void serialPort_DataReceived_1(object sender, SerialDataReceivedEventArgs e)
+        private void timer_Tick(object sender, EventArgs e)
         {
-            Thread.Sleep(500);
-            string message = serialPort.ReadLine();
-
-            this.BeginInvoke(new SetTextDeleg(si_DataReceived), new object[] { message });
+            string dataFromScale = serial.ReadLine().ToString();
         }
+        public  void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
+        {
+
+
+
+            /* try
+             {
+                 string data = serialPort.ReadExisting();
+                 // Ensure the UI update is done on the UI thread
+                 this.Invoke(new Action(() =>
+                 {
+                     pesee.Text = data;
+                 }));
+             }
+             catch (Exception ex)
+             {
+                 MessageBox.Show(ex.Message);
+             }*/
+
+            try
+            {
+                
+                string data = serialPort.ReadExisting();
+                dataBuffer.Append(data);
+
+                // Check if the buffer contains a complete message (assuming newline as the delimiter)
+                while (dataBuffer.ToString().Contains("\n"))
+                {
+                    string completeData = dataBuffer.ToString();
+                    int newlineIndex = completeData.IndexOf('\n');
+
+                    // Extract the message up to the newline
+                    string message = completeData.Substring(0, newlineIndex).Trim();
+
+                    // Remove the processed message from the buffer
+                    dataBuffer.Remove(0, newlineIndex + 1);
+
+                    // Update the UI on the main thread
+                    this.Invoke(new Action(() =>
+                    {
+                        // Filter out '+' and '-' if they are not part of the numeric data
+                        if (message == "+" || message == "-")
+                        {
+                            message = "0";
+                        }
+
+                        if (string.IsNullOrEmpty(message))
+                        {
+                            pesee.Text = "0";
+                        }
+                        else
+                        {
+                            pesee.Text = message;
+                        }
+                    }));
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+        }
+        //private void si_DataReceived(string data) { pesee.Text = data; MessageBox.Show(data); }
+
+
+        /*private void serialPort_DataReceived_1(object sender, SerialDataReceivedEventArgs e)
+        {
+            string message;
+            
+            try
+            {
+                
+                message = serialPort.ReadLine().ToString();
+                this.BeginInvoke(new SetTextDeleg(si_DataReceived), new object[] { message });
+                
+             
+                
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            
+
+            
+        }*/
 
         private void InitializeFullscreenForm()
         {
@@ -113,6 +200,7 @@ namespace scale
         {
 
             hour.Text = DateTime.Now.ToString("H:mm:ss");
+            timer.Stop();
 
         }
 
@@ -255,7 +343,8 @@ namespace scale
                
             }
 
-            using (SqlConnection conn = new SqlConnection(myConnstring))
+            //using (SqlConnection conn = new SqlConnection(myConnstring))
+            using (SqlConnection conn = DbConnection.getConnection())
             {
                 string query = "SELECT * FROM Fournisseur WHERE fr_code LIKE @frCode";
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -270,7 +359,7 @@ namespace scale
 
                     if (dt != null && dt.Rows.Count > 0)
                     {
-                        
+
                         fournisseurBox.DataSource = dt;
                         fournisseurBox.DisplayMember = "fr_name";
                         fournisseurBox.DroppedDown = true;
@@ -280,7 +369,7 @@ namespace scale
                     else
                     {
                         fournisseurBox.DroppedDown = false;
-                       
+
                     }
                 }
                 catch (Exception ex)
@@ -290,7 +379,7 @@ namespace scale
                 }
                 finally
                 {
-                   
+
                     conn.Close();
                 }
             }
@@ -301,7 +390,8 @@ namespace scale
         private void produit1_DropDown(object sender, EventArgs e)
         {
             string cat = categorie.Text;
-            SqlConnection conn = new SqlConnection(myConnstring);
+            //SqlConnection conn = new SqlConnection(myConnstring);
+            SqlConnection conn = DbConnection.getConnection();
             DataTable dt = new DataTable();
             string query;
             if (cat == string.Empty)
@@ -351,7 +441,8 @@ namespace scale
         }
         public void tbl_inf_load()
         {
-            SqlConnection conn = new SqlConnection(myConnstring);
+            //SqlConnection conn = new SqlConnection(myConnstring);
+            SqlConnection conn = DbConnection.getConnection();
             DataTable dt = new DataTable();
             try
             {
@@ -399,7 +490,8 @@ namespace scale
             {
                 lst_load();
             }
-            SqlConnection conn = new SqlConnection(myConnstring);
+            //SqlConnection conn = new SqlConnection(myConnstring);
+            SqlConnection conn = DbConnection.getConnection();
             string query = "SELECT * FROM Pesee WHERE P_id like @PId";
             SqlCommand cmd = new SqlCommand(query, conn);
             cmd.Parameters.AddWithValue("@PId", "%" + keyword + "%");
@@ -429,7 +521,8 @@ namespace scale
 
             }
 
-            using (SqlConnection conn = new SqlConnection(myConnstring))
+            //using (SqlConnection conn = new SqlConnection(myConnstring))
+            using (SqlConnection conn = DbConnection.getConnection())
             {
                 string query = "SELECT * FROM Destination WHERE dest_name LIKE @dest_name";
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -1293,7 +1386,8 @@ namespace scale
 
         private void pes_id_DropDown(object sender, EventArgs e)
         {
-            SqlConnection conn = new SqlConnection(myConnstring);
+            //SqlConnection conn = new SqlConnection(myConnstring);
+            SqlConnection conn = DbConnection.getConnection();
             DataTable dt = new DataTable();
             try
             {
@@ -1324,7 +1418,8 @@ namespace scale
 
         private void pes_id_SelectedValueChanged(object sender, EventArgs e)
         {
-            SqlConnection conn = new SqlConnection(myConnstring);
+            //SqlConnection conn = new SqlConnection(myConnstring);
+            SqlConnection conn = DbConnection.getConnection();
             DataTable dt = new DataTable();
             try
             {
@@ -1478,7 +1573,8 @@ namespace scale
             {
                 DataRowView drv = lstPesee.SelectedItem as DataRowView;
                 string p_id = drv["p_id"].ToString();
-                SqlConnection conn = new SqlConnection(myConnstring);
+                //SqlConnection conn = new SqlConnection(myConnstring);
+                SqlConnection conn = DbConnection.getConnection();
                 DataTable dt = new DataTable();
                 try
                 {
@@ -1549,7 +1645,8 @@ namespace scale
            
             }
 
-            using (SqlConnection conn = new SqlConnection(myConnstring))
+            //using (SqlConnection conn = new SqlConnection(myConnstring))
+            using (SqlConnection conn = DbConnection.getConnection())
             {
                 string query = "SELECT * FROM Pesee WHERE p_id LIKE @p_id";
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -1573,7 +1670,7 @@ namespace scale
                     else
                     {
                         pes_id.DroppedDown = false;
-                       
+
                     }
                 }
                 catch (Exception ex)
@@ -1582,7 +1679,7 @@ namespace scale
                 }
                 finally
                 {
-                  
+
                     conn.Close();
                 }
             }
@@ -1603,7 +1700,8 @@ namespace scale
              
             }
 
-            using (SqlConnection conn = new SqlConnection(myConnstring))
+            //using (SqlConnection conn = new SqlConnection(myConnstring))
+            using (SqlConnection conn = DbConnection.getConnection())
             {
                 string query = "SELECT * FROM Camion WHERE matricule LIKE @matricule";
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -1618,7 +1716,7 @@ namespace scale
 
                     if (dt != null && dt.Rows.Count > 0)
                     {
-                       
+
                         camion.DataSource = dt;
                         camion.DisplayMember = "matricule";
                         camion.DroppedDown = true;
@@ -1628,7 +1726,7 @@ namespace scale
                     else
                     {
                         camion.DroppedDown = false;
-                      
+
                     }
                 }
                 catch (Exception ex)
@@ -1637,7 +1735,7 @@ namespace scale
                 }
                 finally
                 {
-                   
+
                     conn.Close();
                 }
             }
@@ -1657,7 +1755,8 @@ namespace scale
                
             }
 
-            using (SqlConnection conn = new SqlConnection(myConnstring))
+            //using (SqlConnection conn = new SqlConnection(myConnstring))
+            using (SqlConnection conn = DbConnection.getConnection())
             {
                 string query = "SELECT * FROM Provenance WHERE prov_name LIKE @prov_name";
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -1672,7 +1771,7 @@ namespace scale
 
                     if (dt != null && dt.Rows.Count > 0)
                     {
-                       
+
                         provenance.DataSource = dt;
                         provenance.DisplayMember = "prov_name";
                         provenance.DroppedDown = true;
@@ -1682,7 +1781,7 @@ namespace scale
                     else
                     {
                         provenance.DroppedDown = false;
-                       
+
                     }
                 }
                 catch (Exception ex)
@@ -1691,7 +1790,7 @@ namespace scale
                 }
                 finally
                 {
-                   
+
                     conn.Close();
                 }
             }
@@ -1712,7 +1811,8 @@ namespace scale
                
             }
 
-            using (SqlConnection conn = new SqlConnection(myConnstring))
+            //using (SqlConnection conn = new SqlConnection(myConnstring))
+            using (SqlConnection conn = DbConnection.getConnection())
             {
                 string query = "SELECT * FROM Fournisseur WHERE fr_name LIKE @fr_name";
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -1727,7 +1827,7 @@ namespace scale
 
                     if (dt != null && dt.Rows.Count > 0)
                     {
-                        
+
                         fournisseurBox.DataSource = dt;
                         fournisseurBox.DisplayMember = "fr_name";
                         fournisseurBox.DroppedDown = true;
@@ -1737,7 +1837,7 @@ namespace scale
                     else
                     {
                         fournisseurBox.DroppedDown = false;
-               
+
                     }
                 }
                 catch (Exception ex)
@@ -1746,7 +1846,7 @@ namespace scale
                 }
                 finally
                 {
-                   
+
                     conn.Close();
                 }
             }
@@ -1766,7 +1866,8 @@ namespace scale
             }
             string query;
 
-            using (SqlConnection conn = new SqlConnection(myConnstring))
+            //using (SqlConnection conn = new SqlConnection(myConnstring))
+            using (SqlConnection conn = DbConnection.getConnection())
             {
                 if (cat == string.Empty)
                 {
@@ -1778,7 +1879,7 @@ namespace scale
                 }
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@pr_name", "%" + keyword + "%");
-                if(cat != string.Empty)  cmd.Parameters.AddWithValue("@cat_name", cat) ;
+                if (cat != string.Empty) cmd.Parameters.AddWithValue("@cat_name", cat);
                 SqlDataAdapter sda = new SqlDataAdapter(cmd);
                 DataTable dt = new DataTable();
 
@@ -1789,7 +1890,7 @@ namespace scale
 
                     if (dt != null && dt.Rows.Count > 0)
                     {
-                       
+
                         produit1.DataSource = dt;
                         produit1.DisplayMember = "pr_name";
                         produit1.DroppedDown = true;
@@ -1799,22 +1900,23 @@ namespace scale
                     else
                     {
                         produit1.DroppedDown = false;
-                      
+
                     }
                 }
                 catch (Exception ex)
                 {
-                    
+
                     MessageBox.Show("An error occurred: " + ex.Message);
                 }
                 finally
                 {
-                    
+
                     conn.Close();
                 }
             }
         }
 
+        
         
     }
 }

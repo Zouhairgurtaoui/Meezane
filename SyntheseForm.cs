@@ -15,7 +15,7 @@ namespace scale
 {
     public partial class SyntheseForm : Form
     {
-        private static readonly string myConnstring = ConfigurationManager.ConnectionStrings["connString"].ConnectionString;
+        //private static readonly string myConnstring = ConfigurationManager.ConnectionStrings["connString"].ConnectionString;
 
         public SyntheseForm()
         {
@@ -24,7 +24,8 @@ namespace scale
 
         private void date_ValueChanged(object sender, EventArgs e)
         {
-            SqlConnection conn = new SqlConnection(myConnstring);
+            //SqlConnection conn = new SqlConnection(myConnstring);
+            SqlConnection conn = DbConnection.getConnection();
             string end_time = todate.Value.ToString("M/d/yyyy");
             string start_time = fromdate.Value.ToString("M/d/yyyy");
             Fournisseur fr = new Fournisseur();
