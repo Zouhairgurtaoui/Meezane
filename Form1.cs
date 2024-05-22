@@ -79,9 +79,12 @@ namespace scale
 
 
 
-            /* try
+            /*try
              {
                  string data = serialPort.ReadExisting();
+                if(data.Contains("\r"))
+                MessageBox.Show(data.IndexOf("\r").ToString());
+                
                  // Ensure the UI update is done on the UI thread
                  this.Invoke(new Action(() =>
                  {
@@ -92,18 +95,18 @@ namespace scale
              {
                  MessageBox.Show(ex.Message);
              }*/
-
             try
             {
                 
                 string data = serialPort.ReadExisting();
-                dataBuffer.Append(data);
+
+                dataBuffer.Append(data.Replace('+',' '));
 
                 // Check if the buffer contains a complete message (assuming newline as the delimiter)
-                while (dataBuffer.ToString().Contains("\n"))
+                while (dataBuffer.ToString().Contains("\r"))
                 {
                     string completeData = dataBuffer.ToString();
-                    int newlineIndex = completeData.IndexOf('\n');
+                    int newlineIndex = completeData.IndexOf('\r');
 
                     // Extract the message up to the newline
                     string message = completeData.Substring(0, newlineIndex).Trim();
@@ -621,8 +624,9 @@ namespace scale
         {
             if (buttonClicked.Equals("brut"))
             {
-                if (typePesee.Text.Equals("ENTREE"))
+                if (typePesee.Text.Equals("ENTREE", StringComparison.OrdinalIgnoreCase) || (typePesee.Text.Equals("TRANSFER", StringComparison.OrdinalIgnoreCase) && acceuil.Text.Equals("AVEIRO", StringComparison.OrdinalIgnoreCase)))
                 {
+                    
                     string matricule = camion.Text;
                     string prv = provenance.Text;
                     string fr_code = frCode.Text;
@@ -997,7 +1001,7 @@ namespace scale
             }
             else
             {
-                if (typePesee.Text.Equals("SORTIE") || typePesee.Text.Equals("TRANSFER"))
+                if (typePesee.Text.Equals("SORTIE", StringComparison.OrdinalIgnoreCase) || typePesee.Text.Equals("TRANSFER", StringComparison.OrdinalIgnoreCase))
                 {
 
                     string matricule = camion.Text;

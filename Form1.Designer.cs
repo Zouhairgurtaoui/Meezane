@@ -203,6 +203,7 @@
             this.pesee.Name = "pesee";
             this.pesee.Size = new System.Drawing.Size(325, 57);
             this.pesee.TabIndex = 0;
+            this.pesee.Text = "0";
             this.pesee.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // panel2
@@ -994,10 +995,6 @@
             this.synthese.Text = "Synthese";
             this.synthese.UseVisualStyleBackColor = false;
             this.synthese.Click += new System.EventHandler(this.synthese_Click);
-            // 
-            // rptPesee
-            // 
-            
             // 
             // MainForm
             // 
