@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.serialPort = new System.IO.Ports.SerialPort(this.components);
             this.panel1 = new System.Windows.Forms.Panel();
@@ -104,6 +104,7 @@
             this.annulerPesee = new System.Windows.Forms.Button();
             this.synthese = new System.Windows.Forms.Button();
             this.rptPesee = new scale.rptPesee();
+            this.rptFirstOp = new scale.rptFirstOp();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -120,7 +121,6 @@
             this.serialPort.Handshake = System.IO.Ports.Handshake.RequestToSend;
             this.serialPort.PortName = "COM4";
             this.serialPort.ReadBufferSize = 10024;
-           
             this.serialPort.DataReceived += new System.IO.Ports.SerialDataReceivedEventHandler(this.DataReceivedHandler);
             // 
             // panel1
@@ -538,7 +538,6 @@
             this.frCode.Name = "frCode";
             this.frCode.Size = new System.Drawing.Size(58, 30);
             this.frCode.TabIndex = 41;
-            this.frCode.TextChanged += new System.EventHandler(this.frCode_TextChanged);
             // 
             // label16
             // 
@@ -847,9 +846,9 @@
             this.tbl_inf.AllowUserToAddRows = false;
             this.tbl_inf.AllowUserToDeleteRows = false;
             this.tbl_inf.AllowUserToOrderColumns = true;
-            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.Color.Red;
-            this.tbl_inf.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.Red;
+            this.tbl_inf.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.tbl_inf.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tbl_inf.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -996,6 +995,10 @@
             this.synthese.UseVisualStyleBackColor = false;
             this.synthese.Click += new System.EventHandler(this.synthese_Click);
             // 
+            // rptPesee
+            // 
+            
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -1110,6 +1113,7 @@
         private System.Windows.Forms.Button annulerPesee;
         private System.Windows.Forms.Button synthese;
         private rptPesee rptPesee;
+        private rptFirstOp rptFirstOp;
     }
 }
 

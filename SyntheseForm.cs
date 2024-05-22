@@ -36,7 +36,7 @@ namespace scale
                 try
                 {
                     
-                    string query = "SELECT pr.pr_name AS produit , SUM(p.net) AS quantity, SUM(p.dechets) AS dechets,SUM(p.ecart) AS Ecart,SUM(non_usinable) AS 'Non usinable' FROM Pesee p INNER JOIN   Produit pr ON p.pr_id = pr.pr_id WHERE  p.fr_id = @fr_id  AND p.ddebut >= @start_time  AND p.dfin <= @end_time GROUP BY pr.pr_name";
+                    string query = "SELECT pr.pr_name AS produit , SUM(p.net) AS 'Net Total', SUM(p.dechets) AS dechets,SUM(p.ecart) AS Ecart,SUM(non_usinable) AS 'Non usinable' FROM Pesee p INNER JOIN   Produit pr ON p.pr_id = pr.pr_id WHERE  p.fr_id = @fr_id  AND p.ddebut >= @start_time  AND p.dfin <= @end_time GROUP BY pr.pr_name";
                     SqlCommand cmd = new SqlCommand(query, conn);
                     cmd.Parameters.AddWithValue("@fr_id", (int)dt.Rows[0]["fr_id"]);
                     cmd.Parameters.AddWithValue("@start_time", start_time);

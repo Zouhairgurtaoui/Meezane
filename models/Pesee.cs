@@ -101,15 +101,16 @@ namespace scale.models
             }
             return dt;
         }
-        public DataTable Select_last()
+        public DataTable Select_last(char prefix)
         {
             //SqlConnection conn = new SqlConnection(myConnstring);
             SqlConnection conn = DbConnection.getConnection();
             DataTable dt = new DataTable();
             try
             {
-                string query = "SELECT TOP 1 *FROM Pesee ORDER BY   CAST(    SUBSTRING( p_id,     CHARINDEX('-', p_id) + 1,     LEN(p_id) - CHARINDEX('-', p_id)   ) AS INT  ) DESC;";
+                string query = "SELECT TOP 1 *  FROM Pesee   WHERE p_id LIKE @prefix + '%'  ORDER BY   CAST( SUBSTRING(p_id, CHARINDEX('-', p_id) + 1, LEN(p_id) - CHARINDEX('-', p_id)) AS INT ) DESC;";
                 SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@prefix", prefix);
                 SqlDataAdapter adapter = new SqlDataAdapter(cmd);
                 conn.Open();
                 adapter.Fill(dt);

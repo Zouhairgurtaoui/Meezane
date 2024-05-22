@@ -14,6 +14,8 @@ using System.Linq;
 using System.Runtime.Remoting.Contexts;
 using System.Security.Cryptography;
 using System.Text;
+using CrystalDecisions.CrystalReports.Engine;
+using CrystalDecisions.Shared;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Services.Description;
@@ -29,7 +31,7 @@ namespace scale
         private static string buttonClicked;
         private Pesee p = new Pesee();
         private delegate void SetTextDeleg(string message);
-        SerialPort serial;
+       
 
         private StringBuilder dataBuffer = new StringBuilder();
 
@@ -68,10 +70,10 @@ namespace scale
 
 
         }
-        private void timer_Tick(object sender, EventArgs e)
+        /*private void timer_Tick(object sender, EventArgs e)
         {
             string dataFromScale = serial.ReadLine().ToString();
-        }
+        }*/
         public  void DataReceivedHandler(object sender, SerialDataReceivedEventArgs e)
         {
 
@@ -271,8 +273,18 @@ namespace scale
         private void fournisseurBox_DropDown(object sender, EventArgs e)
         {
             Fournisseur fr = new Fournisseur();
-            fournisseurBox.DataSource = fr.Select();
+            if (frCode.Text == string.Empty)
+            {
+                fournisseurBox.DataSource = fr.Select();
+                
+            }
+            else
+            {
+                fournisseurBox.DataSource = fr.select(frCode.Text);
+               
+            }
             fournisseurBox.DisplayMember = "fr_name";
+
         }
 
         void display()
@@ -330,62 +342,7 @@ namespace scale
 
 
         
-        private void frCode_TextChanged(object sender, EventArgs e)
-        {
-            
-                
-
-            string keyword = frCode.Text;
-
-            if (string.IsNullOrWhiteSpace(keyword))
-            {
-                fournisseurBox_DropDown(sender, e);
-               
-            }
-
-            //using (SqlConnection conn = new SqlConnection(myConnstring))
-            using (SqlConnection conn = DbConnection.getConnection())
-            {
-                string query = "SELECT * FROM Fournisseur WHERE fr_code LIKE @frCode";
-                SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@frCode", "%" + keyword + "%");
-                SqlDataAdapter sda = new SqlDataAdapter(cmd);
-                DataTable dt = new DataTable();
-
-                try
-                {
-                    conn.Open();
-                    sda.Fill(dt);
-
-                    if (dt != null && dt.Rows.Count > 0)
-                    {
-
-                        fournisseurBox.DataSource = dt;
-                        fournisseurBox.DisplayMember = "fr_name";
-                        fournisseurBox.DroppedDown = true;
-                        fournisseurBox.Text = keyword; // Keep the current text
-                        fournisseurBox.SelectionStart = fournisseurBox.Text.Length; // Move cursor to the end
-                    }
-                    else
-                    {
-                        fournisseurBox.DroppedDown = false;
-
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // Handle exceptions
-                    MessageBox.Show("An error occurred: " + ex.Message);
-                }
-                finally
-                {
-
-                    conn.Close();
-                }
-            }
-
-
-        }
+        
 
         private void produit1_DropDown(object sender, EventArgs e)
         {
@@ -590,31 +547,75 @@ namespace scale
             produit1.Enabled = enabled;
 
         }
-        void Print(ReportDetail rp)
+        private void ChangeTextObject(ReportDocument reportDocument, string textObjectName, string newText)
         {
-            rptPesee.SetParameterValue("PeseeN", rp.PeseeN);
-            rptPesee.SetParameterValue("typeOperation", rp.TypeOperation);
-            rptPesee.SetParameterValue("destination", rp.Destination);
-            rptPesee.SetParameterValue("provenance", rp.Provenance);
-            rptPesee.SetParameterValue("matricule", rp.Matricule);
-            rptPesee.SetParameterValue("produit", rp.Produit);
-            rptPesee.SetParameterValue("fournisseur", rp.Fournisseur);
-            rptPesee.SetParameterValue("debut", rp.Debut);
-            rptPesee.SetParameterValue("fin", rp.Fin);
-            rptPesee.SetParameterValue("BRUT", rp.Brut);
-            rptPesee.SetParameterValue("TARE", rp.Tare);
-            rptPesee.SetParameterValue("POIDCAIPAL", rp.PoidCaisPal);
-            rptPesee.SetParameterValue("ECART", rp.Ecart);
-            rptPesee.SetParameterValue("NONUSINABLE", rp.NonUsinable);
-            rptPesee.SetParameterValue("DECHETS", rp.Dechets);
-            rptPesee.SetParameterValue("NETMP", rp.Net);
-            rptPesee.SetParameterValue("typeTare", rp.TypeTare);
-            rptPesee.SetParameterValue("operateur", rp.Operateur);
-            //rptPesee.SaveAs(rp.PeseeN);
-            string savePath = $"C:\\Users\\Hp\\Desktop\\{rp.PeseeN}.doc";
-            rptPesee.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.WordForWindows, savePath);
+            // Find the text object in the report
+            TextObject textObject = reportDocument.ReportDefinition.ReportObjects[textObjectName] as TextObject;
+            if (textObject != null)
+            {
+                // Change the text
+                textObject.Text = newText;
+            }
+        }
+        void Print(ReportDetail rp,string type)
+        {
+            if (type.Equals("brut")) {
+                rptFirstOp.SetParameterValue("PeseeN", rp.PeseeN);
+                rptFirstOp.SetParameterValue("typeOperation", rp.TypeOperation);
+                rptFirstOp.SetParameterValue("destination", rp.Destination);
+                rptFirstOp.SetParameterValue("provenance", rp.Provenance);
+                rptFirstOp.SetParameterValue("matricule", rp.Matricule);
+                rptFirstOp.SetParameterValue("produit", rp.Produit);
+                rptFirstOp.SetParameterValue("fournisseur", rp.Fournisseur);
+                rptFirstOp.SetParameterValue("BRUT", rp.Brut);
+                rptFirstOp.SetParameterValue("operateur", rp.Operateur);
+                ChangeTextObject(rptFirstOp, "tareBrut", "Brut");
+                string savePath = $"C:\\Users\\Hp\\Desktop\\{rp.PeseeN}.doc";
+                rptFirstOp.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.WordForWindows, savePath);
+            }
+            else if(type.Equals("tare")){
 
-            //rptPesee.PrintToPrinter(1,false,1,1);
+                rptFirstOp.SetParameterValue("PeseeN", rp.PeseeN);
+                rptFirstOp.SetParameterValue("typeOperation", rp.TypeOperation);
+                rptFirstOp.SetParameterValue("destination", rp.Destination);
+                rptFirstOp.SetParameterValue("provenance", rp.Provenance);
+                rptFirstOp.SetParameterValue("matricule", rp.Matricule);
+                rptFirstOp.SetParameterValue("produit", rp.Produit);
+                rptFirstOp.SetParameterValue("fournisseur", rp.Fournisseur);
+                rptFirstOp.SetParameterValue("BRUT", rp.Tare);
+                rptFirstOp.SetParameterValue("operateur", rp.Operateur);
+                ChangeTextObject(rptFirstOp, "tareBrut", "Tare");
+                string savePath = $"C:\\Users\\Hp\\Desktop\\{rp.PeseeN}.doc";
+                rptFirstOp.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.WordForWindows, savePath);
+            }
+            else
+            {
+                rptPesee.SetParameterValue("PeseeN", rp.PeseeN);
+                rptPesee.SetParameterValue("typeOperation", rp.TypeOperation);
+                rptPesee.SetParameterValue("destination", rp.Destination);
+                rptPesee.SetParameterValue("provenance", rp.Provenance);
+                rptPesee.SetParameterValue("matricule", rp.Matricule);
+                rptPesee.SetParameterValue("produit", rp.Produit);
+                rptPesee.SetParameterValue("fournisseur", rp.Fournisseur);
+                rptPesee.SetParameterValue("debut", rp.Debut);
+                rptPesee.SetParameterValue("fin", rp.Fin);
+                rptPesee.SetParameterValue("BRUT", rp.Brut);
+                rptPesee.SetParameterValue("TARE", rp.Tare);
+                rptPesee.SetParameterValue("POIDCAIPAL", rp.PoidCaisPal);
+                rptPesee.SetParameterValue("ECART", rp.Ecart);
+                rptPesee.SetParameterValue("NONUSINABLE", rp.NonUsinable);
+                rptPesee.SetParameterValue("DECHETS", rp.Dechets);
+                rptPesee.SetParameterValue("NETMP", rp.Net);
+                rptPesee.SetParameterValue("typeTare", rp.TypeTare);
+                rptPesee.SetParameterValue("operateur", rp.Operateur);
+                //rptPesee.SaveAs(rp.PeseeN);
+                string savePath = $"C:\\Users\\Hp\\Desktop\\{rp.PeseeN}.doc";
+                rptPesee.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.WordForWindows, savePath);
+
+                //rptPesee.PrintToPrinter(1,false,1,1);
+            }
+            
+            
         }
         private void valider_Click(object sender, EventArgs e)
         {
@@ -850,10 +851,11 @@ namespace scale
 
 
 
-
+                    string prefix = $"{char.ToUpper(acc[0])}{char.ToUpper(type_pes[0])}{char.ToUpper(cat_pr[0])}";
                     //pesee
 
-                    dt = p.Select_last();
+
+                    dt = p.Select_last(char.ToUpper(acc[0]));
                     string[] mp = null;
                     if (dt.Rows.Count > 0)
                     {
@@ -867,7 +869,7 @@ namespace scale
 
                     int id = data["p_id"];
                     ++id;
-                    string prefix = $"{char.ToUpper(acc[0])}{char.ToUpper(type_pes[0])}{char.ToUpper(cat_pr[0])}";
+                   
                     string p_id = $"{prefix}-{id}";
 
 
@@ -923,7 +925,7 @@ namespace scale
                         Net = p.Net.ToString(),
                         TypeTare = (tareAvecCaisse.Checked) ? " " : " "
                     };
-                    Print(rp);
+                    Print(rp,"brut");
                     Clear();
                 }
                 else
@@ -986,7 +988,7 @@ namespace scale
                         Net = p.Net.ToString(),
                         TypeTare = tareAvecCaisse.Checked ? "Tare Avec Caisse" : "Tare Sans Caisse"
                     };
-                    Print(rp);
+                    Print(rp,"");
                     Clear();
 
 
@@ -1227,8 +1229,8 @@ namespace scale
 
 
                     //pesee
-
-                    dt = p.Select_last();
+                    string prefix = $"{char.ToUpper(acc[0])}{char.ToUpper(type_pes[0])}{char.ToUpper(cat_pr[0])}";
+                    dt = p.Select_last(char.ToUpper(acc[0]));
                     string[] mp = null;
                     if (dt.Rows.Count > 0)
                     {
@@ -1242,7 +1244,7 @@ namespace scale
 
                     int id = data["p_id"];
                     ++id;
-                    string prefix = $"{char.ToUpper(acc[0])}{char.ToUpper(type_pes[0])}{char.ToUpper(cat_pr[0])}";
+                    
                     string p_id = $"{prefix}-{id}";
 
                     p.Id = p_id;
@@ -1295,7 +1297,7 @@ namespace scale
                         Net = p.Net.ToString(),
                         TypeTare = (tareAvecCaisse.Checked) ? " " : " "
                     };
-                    Print(rp);
+                    Print(rp,"tare");
                     Clear();
 
                 }
@@ -1365,7 +1367,7 @@ namespace scale
                             TypeTare = tareAvecCaisse.Checked ? "Tare Avec Caisse" : "Tare Sans Caisse"
                         };
 
-                        Print(rp);
+                        Print(rp,"");
                     }
                     catch (Exception ex)
                     {
@@ -1605,11 +1607,11 @@ namespace scale
                         Dechets = dt.Rows[0]["dechets"].ToString(),
                         Debut = dt.Rows[0]["ddebut"].ToString() + " " + dt.Rows[0]["hdebut"].ToString(),
                         Fin = dt.Rows[0]["dfin"].ToString() + " " + dt.Rows[0]["hfin"].ToString(),
-                        TypeTare = ((bool)dt.Rows[0]["tare_avec_caisse"]) ? "Tare Avec Caisse" : ((bool)dt.Rows[0]["tare_sans_caisse"]) ? "Tare Sans Caisse" : "",
+                        TypeTare = ((bool)dt.Rows[0]["tare_avec_caisse"]) ? "Tare Avec Caisse" :((bool)dt.Rows[0]["tare_sans_caisse"]) ? "Tare Sans Caisse" :"",
                         PoidCaisPal = poid.ToString(),
                         Net = dt.Rows[0]["net"].ToString(),
                     };
-                    Print(rp);
+                    Print(rp,"");
 
                 }
                 catch (Exception ex)
@@ -1916,8 +1918,7 @@ namespace scale
             }
         }
 
-        
-        
+       
     }
 }
    
