@@ -61,7 +61,7 @@ namespace scale.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Data Source=DESKTOP-18DA7BO\SQLEXPRESS;Initial Catalog=cmdoha;Integrated Security=True.
+        ///   Looks up a localized string similar to Data Source=.\SQLEXPRESS;Initial Catalog=cmdoha;Integrated Security=True.
         /// </summary>
         internal static string connString {
             get {

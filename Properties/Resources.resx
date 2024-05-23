@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="connString" xml:space="preserve">
-    <value>Data Source=DESKTOP-18DA7BO\SQLEXPRESS;Initial Catalog=cmdoha;Integrated Security=True</value>
+    <value>Data Source=.\SQLEXPRESS;Initial Catalog=cmdoha;Integrated Security=True</value>
     <comment>Connection string</comment>
   </data>
 </root>

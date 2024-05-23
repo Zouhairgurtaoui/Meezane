@@ -5,6 +5,8 @@ VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "scale", "scale.csproj", "{64D4508E-C280-4F6F-887D-402DF6F8B500}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Meezane", "..\Meezane\Meezane.vdproj", "{39603000-6AAB-4BB3-83BE-7AF56DC53D69}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,9 @@ Global
 		{64D4508E-C280-4F6F-887D-402DF6F8B500}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{64D4508E-C280-4F6F-887D-402DF6F8B500}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{64D4508E-C280-4F6F-887D-402DF6F8B500}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39603000-6AAB-4BB3-83BE-7AF56DC53D69}.Debug|Any CPU.ActiveCfg = Debug
+		{39603000-6AAB-4BB3-83BE-7AF56DC53D69}.Debug|Any CPU.Build.0 = Debug
+		{39603000-6AAB-4BB3-83BE-7AF56DC53D69}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

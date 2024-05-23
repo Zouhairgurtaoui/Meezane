@@ -205,7 +205,7 @@ namespace scale
         {
 
             hour.Text = DateTime.Now.ToString("H:mm:ss");
-            timer.Stop();
+         
 
         }
 
@@ -573,8 +573,9 @@ namespace scale
                 rptFirstOp.SetParameterValue("BRUT", rp.Brut);
                 rptFirstOp.SetParameterValue("operateur", rp.Operateur);
                 ChangeTextObject(rptFirstOp, "tareBrut", "Brut");
-                string savePath = $"C:\\Users\\Hp\\Desktop\\{rp.PeseeN}.doc";
-                rptFirstOp.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.WordForWindows, savePath);
+                //string savePath = $"C:\\Users\\Hp\\Desktop\\{rp.PeseeN}.doc";
+                //rptFirstOp.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.WordForWindows, savePath);
+                rptFirstOp.PrintToPrinter(1, false, 1, 1);
             }
             else if(type.Equals("tare")){
 
@@ -588,8 +589,9 @@ namespace scale
                 rptFirstOp.SetParameterValue("BRUT", rp.Tare);
                 rptFirstOp.SetParameterValue("operateur", rp.Operateur);
                 ChangeTextObject(rptFirstOp, "tareBrut", "Tare");
-                string savePath = $"C:\\Users\\Hp\\Desktop\\{rp.PeseeN}.doc";
-                rptFirstOp.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.WordForWindows, savePath);
+                //string savePath = $"C:\\Users\\Hp\\Desktop\\{rp.PeseeN}.doc";
+                //rptFirstOp.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.WordForWindows, savePath);
+                rptFirstOp.PrintToPrinter(1, false, 1, 1);
             }
             else
             {
@@ -612,10 +614,10 @@ namespace scale
                 rptPesee.SetParameterValue("typeTare", rp.TypeTare);
                 rptPesee.SetParameterValue("operateur", rp.Operateur);
                 //rptPesee.SaveAs(rp.PeseeN);
-                string savePath = $"C:\\Users\\Hp\\Desktop\\{rp.PeseeN}.doc";
-                rptPesee.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.WordForWindows, savePath);
+                //string savePath = $"C:\\Users\\Hp\\Desktop\\{rp.PeseeN}.doc";
+                //rptPesee.ExportToDisk(CrystalDecisions.Shared.ExportFormatType.WordForWindows, savePath);
 
-                //rptPesee.PrintToPrinter(1,false,1,1);
+                rptPesee.PrintToPrinter(1,false,1,1);
             }
             
             

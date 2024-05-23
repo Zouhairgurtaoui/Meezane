@@ -4,16 +4,10 @@ C:\Users\Hp\Documents\projects\scale\obj\Debug\scale.LoginForm.resources
 C:\Users\Hp\Documents\projects\scale\obj\Debug\scale.Properties.Resources.resources
 C:\Users\Hp\Documents\projects\scale\obj\Debug\scale.SyntheseForm.resources
 C:\Users\Hp\Documents\projects\scale\obj\Debug\scale.csproj.GenerateResource.cache
-C:\Users\Hp\Documents\projects\scale\obj\Debug\scale.exe.licenses
-C:\Users\Hp\Documents\projects\scale\bin\Debug\scale.exe.config
-C:\Users\Hp\Documents\projects\scale\bin\Debug\scale.exe
-C:\Users\Hp\Documents\projects\scale\bin\Debug\scale.pdb
 C:\Users\Hp\Documents\projects\scale\bin\Debug\System.Configuration.ConfigurationManager.dll
 C:\Users\Hp\Documents\projects\scale\bin\Debug\System.Data.SqlClient.dll
 C:\Users\Hp\Documents\projects\scale\obj\Debug\scale.csproj.CoreCompileInputs.cache
 C:\Users\Hp\Documents\projects\scale\obj\Debug\scale.csproj.CopyComplete
-C:\Users\Hp\Documents\projects\scale\obj\Debug\scale.exe
-C:\Users\Hp\Documents\projects\scale\obj\Debug\scale.pdb
 C:\Users\Hp\Documents\projects\scale\bin\Debug\CrystalDecisions.CrystalReports.Engine.dll
 C:\Users\Hp\Documents\projects\scale\bin\Debug\CrystalDecisions.ReportSource.dll
 C:\Users\Hp\Documents\projects\scale\bin\Debug\CrystalDecisions.Shared.dll
@@ -30,3 +24,9 @@ C:\Users\Hp\Documents\projects\scale\bin\Debug\CrystalDecisions.ReportAppServer.
 C:\Users\Hp\Documents\projects\scale\bin\Debug\CrystalDecisions.ReportAppServer.ObjectFactory.dll
 C:\Users\Hp\Documents\projects\scale\bin\Debug\CrystalDecisions.ReportAppServer.CommonControls.dll
 C:\Users\Hp\Documents\projects\scale\bin\Debug\stdole.dll
+C:\Users\Hp\Documents\projects\scale\bin\Debug\Meezane.exe.config
+C:\Users\Hp\Documents\projects\scale\bin\Debug\Meezane.exe
+C:\Users\Hp\Documents\projects\scale\bin\Debug\Meezane.pdb
+C:\Users\Hp\Documents\projects\scale\obj\Debug\Meezane.exe.licenses
+C:\Users\Hp\Documents\projects\scale\obj\Debug\Meezane.exe
+C:\Users\Hp\Documents\projects\scale\obj\Debug\Meezane.pdb

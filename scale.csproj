@@ -7,7 +7,7 @@
     <ProjectGuid>{64D4508E-C280-4F6F-887D-402DF6F8B500}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>scale</RootNamespace>
-    <AssemblyName>scale</AssemblyName>
+    <AssemblyName>Meezane</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
